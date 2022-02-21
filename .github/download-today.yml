@@ -3,7 +3,7 @@ name: Descarga precio de hoy
 on:
   workflow_dispatch:
   schedule:
-    - cron: 53 18 * * *
+    - cron: 55 18 * * *
 
 jobs:
   downloadStatus:
@@ -16,7 +16,7 @@ jobs:
       with:
         node-version: 16.x
     - run: npm install
-    - run: npm run download-today-status
+    - run: npm run download-today
     - run: |
         git config user.name soker90
         git config user.email eduparra90@gmail.com
