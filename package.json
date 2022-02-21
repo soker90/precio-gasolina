@@ -1,0 +1,22 @@
+{
+  "name": "fuel-price",
+  "version": "1.0.0",
+  "description": "Muestra el precio de la gasolina de una gasolinera definida",
+  "main": "download.mjs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soker90/precio-gasolina.git"
+  },
+  "author": "Eduardo Parra",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/soker90/precio-gasolina/issues"
+  },
+  "homepage": "https://github.com/soker90/precio-gasolina#readme",
+  "dependencies": {
+    "node-fetch": "^3.2.0"
+  },
+  "scripts": {
+    "download-today": "node download.mjs"
+  }
+}
