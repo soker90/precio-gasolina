@@ -3,7 +3,7 @@ name: Descarga precio de hoy
 on:
   workflow_dispatch:
   schedule:
-    - cron: 55 18 * * *
+    - cron: 00 18 * * *
 
 jobs:
   downloadStatus:
