@@ -2,6 +2,7 @@
   "name": "fuel-price",
   "version": "1.0.0",
   "description": "Muestra el precio de la gasolina de una gasolinera definida",
+  "type": "module",
   "main": "download.mjs",
   "repository": {
     "type": "git",
