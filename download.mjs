@@ -15,7 +15,7 @@ fetch(GEOPORTAL_URL, {headers: { 'Accept': ' application/json' }})
     dataSaved.gasolina.push(stationData.precioGasolina95E5)
     dataSaved.diesel.push(stationData.precioGasoleoA)
   
-    // writeFile(dataSaved);
+    writeFile(dataSaved);
 
     console.log(`Guardado con fecha ${date}: gasolina: ${stationData.precioGasolina95E5} y gasoil: ${stationData.precioGasoleoA}`)
     
