@@ -23,7 +23,7 @@ const date = dataSaved.dates.at(-1)
 
 sendToTelegram({
   price: dataSaved.gasolina.at(-1),
-  priceOld: dataSaved.gasolina.at(-1),
+  priceOld: dataSaved.gasolina.at(-2),
   type: 'de la gasolina',
   chatId: GASOLINA_CHAT_ID,
   date,
@@ -32,7 +32,7 @@ sendToTelegram({
 
 sendToTelegram({
   price: dataSaved.diesel.at(-1),
-  priceOld: dataSaved.diesel.at(-1),
+  priceOld: dataSaved.diesel.at(-2),
   type: 'del diesel',
   chatId: DIESEL_CHAT_ID,
   date,
