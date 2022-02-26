@@ -4,9 +4,13 @@
 
 <p id="description">Este bot notifica a través de telegram cuando varía el precio de la gasolina 95 y del gasóleo A de una gasolinera en concreto.</p>
 
-<p align="center"><img src="https://img.shields.io/github/license/soker90/precio-gasolina" alt="shields"> <img src="https://img.shields.io/github/last-commit/soker90/precio-gasolina?label=%C3%9Altima%20actualizaci%C3%B3n" alt="shields"></p>
+<p align="center"><img src="https://img.shields.io/github/license/soker90/precio-gasolina" alt="shields"><img src="https://img.shields.io/github/last-commit/soker90/precio-gasolina?label=%C3%9Altima%20actualizaci%C3%B3n" alt="shields"></p>
 
-  
+<h2>Project Screenshots:</h2>
+
+<img src="https://raw.githubusercontent.com/soker90/precio-gasolina/master/screenshot.png" alt="project-screenshot" width="400" height="400/">
+
+Canal para las actualizaciones de precios del diésel
   
 <h2>💻 Built with</h2>
 
