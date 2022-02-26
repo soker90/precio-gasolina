@@ -6,7 +6,6 @@ const GEOPORTAL_URL = `https://geoportalgasolineras.es/rest/${FUEL_STATION_ID}/b
 
 const date = new Intl.DateTimeFormat('es-ES').format(Date.now())
 
-console.log(process.env.TEST)
 fetch(GEOPORTAL_URL, {headers: { 'Accept': ' application/json' }})
 .then(res => res.json())
 .then((stationData) => {
