@@ -23,10 +23,10 @@ jobs:
         node-version: 16.x
     - run: npm install
     - run: npm run download-today
-    - run: |
-        git config user.name "Eduardo Parra"
-        git config user.email eduparra90@gmail.com
-        git add .
-        git commit -m "Add report for today"
-        git push
+    #- run: |
+    #    git config user.name "Eduardo Parra"
+    #    git config user.email eduparra90@gmail.com
+    #    git add .
+    #    git commit -m "Add report for today"
+    #    git push
     - run: npm run send
