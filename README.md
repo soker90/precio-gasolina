@@ -26,12 +26,12 @@ https://geoportalgasolineras.es/rest/FUEL_STATION_ID/busquedaEstacionPrecio
 
 <p>5. Crea un bot de telegram hablando con @BotFather y guarda el token que te da.</p>
 
-<p>6. Crear un secrect de github llamado TOKEN_TELEGRAM y guarda ahí el token</p>
+<p>6. Crear un secret de github llamado TOKEN_TELEGRAM y guarda ahí el token</p>
 
 <p>7. Haz uno o dos canales de telegram (gasolina y gasoil) y consigue sus CHAT ID</p>
 
 ```
-Puedes conseguirlo reenviando un mensaje escrito en ese canal al bot @getidsbot
+Puedes conseguirlo reenviando un mensaje escrito en ese canal al bot @getidsbot. También puedes abrir un chat con el bot creado en pasos anteriores si no quieres crear un canal.
 ```
 
 <p>8. Crea los secrets GASOLINA_CHAT_ID y DIESEL_CHAT_ID con los CHATS IDs del paso anterior</p>
