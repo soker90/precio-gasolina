@@ -1,6 +1,6 @@
 import QuickChart from 'quickchart-js'
 
-export const generateChart = async ( dataSaved, type ) => {
+export const generateChart = ( dataSaved, type ) => {
   const chart = new QuickChart();
 
   chart.setWidth(500)
