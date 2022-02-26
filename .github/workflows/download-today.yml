@@ -15,6 +15,10 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: 16.x
+      env:
+        GASOLINA_CHAT_ID: ${{ secrets.GASOLINA_CHAT_ID }}
+        DIESEL_CHAT_ID: ${{ secrets.DIESEL_CHAT_ID }}
+        TOKEN_TELEGRAM: ${{ secrets.TOKEN_TELEGRAM }}
     - run: npm install
     - run: npm run download-today
     - run: |
