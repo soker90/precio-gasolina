@@ -27,3 +27,4 @@ jobs:
         git add .
         git commit -m "Add report for today"
         git push
+    - run: npm run send
