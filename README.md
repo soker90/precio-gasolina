@@ -10,7 +10,33 @@
 
 <img src="https://raw.githubusercontent.com/soker90/precio-gasolina/master/screenshot.png" alt="project-screenshot" width="400" height="400/">
 
-Canal para las actualizaciones de precios del diésel
+<h2>🛠️ Installation Steps:</h2>
+
+<p>1. Crea un fork de este repositorio.</p>
+
+<p>2. Ve a https://geoportalgasolineras.es y localiza tu gasolinera.</p>
+
+<p>3. Inspecciona la web y busca en las peticiones una con el formato:</p>
+
+```
+https://geoportalgasolineras.es/rest/FUEL_STATION_ID/busquedaEstacionPrecio
+```
+
+<p>4. Sustituye la variable FUEL_STATION_ID en el archivo download.mjs por el que aparece en la petición del paso anterior.</p>
+
+<p>5. Crea un bot de telegram hablando con @BotFather y guarda el token que te da.</p>
+
+<p>6. Crear un secrect de github llamado TOKEN_TELEGRAM y guarda ahí el token</p>
+
+<p>7. Haz uno o dos canales de telegram (gasolina y gasoil) y consigue sus CHAT ID</p>
+
+```
+Puedes conseguirlo reenviando un mensaje escrito en ese canal al bot @getidsbot
+```
+
+<p>8. Crea los secrets GASOLINA_CHAT_ID y DIESEL_CHAT_ID con los CHATS IDs del paso anterior</p>
+
+  
   
 <h2>💻 Built with</h2>
 
