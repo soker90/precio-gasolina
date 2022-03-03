@@ -22,7 +22,7 @@
 https://geoportalgasolineras.es/rest/FUEL_STATION_ID/busquedaEstacionPrecio
 ```
 
-<p>4. Sustituye la variable FUEL_STATION_ID en el archivo download.mjs por el que aparece en la petición del paso anterior.</p>
+<p>4. Sustituye la variable FUEL_STATION_ID en .github/workflows/download-today.yml por el que aparece en la petición del paso anterior.</p>
 
 <p>5. Crea un bot de telegram hablando con @BotFather y guarda el token que te da.</p>
 
