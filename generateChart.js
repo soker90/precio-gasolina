@@ -27,7 +27,7 @@ export const generateChart = ( dataSaved, type ) => {
         yAxes: [
             {
               ticks: {
-                min: Math.min(...dataSaved[type]),
+                min: Math.round(Math.min(...dataSaved[type]) * 100) / 100,
                 max: Math.max(...dataSaved[type]),
                 callback: (val) => {
                   return val.toLocaleString() + '€';
