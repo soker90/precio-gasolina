@@ -10,7 +10,7 @@ const DIESEL_CHAT_ID = process.env.DIESEL_CHAT_ID;
 const sendToTelegram = async ({price, priceOld, type, chatId, image}) => {
   if(price !== priceOld){
     const diff = Math.round((price - priceOld) * 1000 ) / 1000
-    const msg = `*${date}/${new Date().getFullYear()}*: El precio ${type} es ${price}€, ha _${price > 0 ? 'subido' : 'bajado'}_ *${Math.abs(diff)}€*`
+    const msg = `*${date}/${new Date().getFullYear()}*: El precio ${type} es ${price}€, ha _${diff > 0 ? 'subido' : 'bajado'}_ *${Math.abs(diff)}€*`
     console.log(msg)
     await bot.sendMessage(chatId, msg, {parse_mode : 'Markdown'});
     await bot.sendPhoto(chatId, image)
