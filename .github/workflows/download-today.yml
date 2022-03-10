@@ -3,7 +3,7 @@ name: Descarga precio de hoy
 on:
   workflow_dispatch:
   schedule:
-    - cron: 10,40 * * * *
+    - cron: 10,40 6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22 * * *
 
 env:
   GASOLINA_CHAT_ID: ${{ secrets.GASOLINA_CHAT_ID }}
