@@ -14,7 +14,6 @@ export const generateChart = ( dataSaved, type ) => {
         {
           label: type,
           display: false,
-          steppedLine: true,
           data: dataSaved[type],
           borderColor: 'rgb(255, 99, 132)',
           fill: true,
