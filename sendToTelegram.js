@@ -28,7 +28,7 @@ sendToTelegram({
   chatId: GASOLINA_CHAT_ID,
   date,
   image: generateChart(dataSaved, 'gasolina')
-}).catch(() => console.log('Error al enviar el precio de la gasolina'))
+}).catch(error => console.error('Error al enviar el precio de la gasolina', error))
 
 sendToTelegram({
   price: dataSaved.diesel.at(-1),
@@ -37,5 +37,5 @@ sendToTelegram({
   chatId: DIESEL_CHAT_ID,
   date,
   image: generateChart(dataSaved, 'diesel')
-}).catch(() => console.log('Error al enviar el precio del gasoil'))
+}).catch(error => console.error('Error al enviar el precio del gasoil', error))
   
