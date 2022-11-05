@@ -15,9 +15,9 @@
   },
   "homepage": "https://github.com/soker90/precio-gasolina#readme",
   "dependencies": {
-    "node-fetch": "^3.2.0",
-    "node-telegram-bot-api": "^0.56.0",
-    "quickchart-js": "^3.0.0"
+    "node-fetch": "^3.2.10",
+    "node-telegram-bot-api": "^0.59.0",
+    "quickchart-js": "^3.1.0"
   },
   "scripts": {
     "download-today": "node download.mjs",

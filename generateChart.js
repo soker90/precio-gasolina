@@ -9,12 +9,12 @@ export const generateChart = ( dataSaved, type ) => {
   chart.setConfig({
     type: 'line',
     data: {
-      labels: dataSaved.dates,
+      labels: dataSaved.dates.slice(-250),
       datasets: [
         {
           label: type,
           display: false,
-          data: dataSaved[type],
+          data: dataSaved[type].slice(-250),
           borderColor: 'rgb(255, 99, 132)',
           fill: true,
         },
@@ -26,8 +26,8 @@ export const generateChart = ( dataSaved, type ) => {
         yAxes: [
             {
               ticks: {
-                min: Math.trunc(Math.min(...dataSaved[type]) * 100) / 100,
-                max: Math.max(...dataSaved[type]),
+                min: Math.trunc(Math.min(...dataSaved[type].slice(-250)) * 100) / 100,
+                max: Math.max(...dataSaved[type].slice(-250)),
                 callback: (val) => {
                   return val.toLocaleString() + '€';
                 },
