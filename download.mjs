@@ -1,12 +1,11 @@
 import fetch from 'node-fetch'
 import { readFile, writeFile } from './fileUtils.js'
-import pkg from 'dotenv';
-const { dotenv } = pkg;
-pkg.config();
+// import pkg from 'dotenv';
+// const { dotenv } = pkg;
+// pkg.config();
 
-const IDMUNICIPIO = process.env.IDMUNICIPIO;
-const IDPRODUCTO = process.env.IDPRODUCTO;
-const GEOPORTAL_URL = `https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/FiltroMunicipio/${IDMUNICIPIO}`
+const FUEL_STATION_ID = process.env.FUEL_STATION_ID;
+const GEOPORTAL_URL = `https://sedeaplicaciones.minetur.gob.es/ServiciosRESTCarburantes/PreciosCarburantes/EstacionesTerrestres/FiltroMunicipio/${FUEL_STATION_ID}`
 
 const date = new Intl.DateTimeFormat('es-ES', { month: 'numeric', day: 'numeric' }).format(Date.now())
 
@@ -21,7 +20,7 @@ fetch(GEOPORTAL_URL, {headers: { 'Accept': ' application/json' }})
 
     const priceGasolina95 = Number(stationData['ListaEESSPrecio'][0]['Precio Gasolina 95 E5'].replace(',','.'));
     const priceGasoleoA = Number(stationData['ListaEESSPrecio'][0]['Precio Gasoleo A'].replace(',','.'));
-    
+
     //----------------------------------------------------------------
     
     if(dataSaved.dates.at(-1) === date){
