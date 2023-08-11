@@ -22,7 +22,7 @@
   },
   "scripts": {
     "download-today": "node download.mjs",
-    "wait-15seg": "node wait15seg.js",
-    "send": "node sendToTelegram.js"
+    "send": "node sendToTelegram.js",
+    "interact": "node interactBot/main.js"
   }
 }

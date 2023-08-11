@@ -1,6 +1,7 @@
 import TelegramBot from 'node-telegram-bot-api'
 import { readFile } from './fileUtils.js'
 import { generateChart } from './generateChart.js'
+
 // import pkg from 'dotenv';
 // const { dotenv } = pkg;
 // pkg.config();
@@ -10,7 +11,7 @@ const bot = new TelegramBot(TOKEN_TELEGRAM)
 const GASOLINA_CHAT_ID = process.env.GASOLINA_CHAT_ID;
 const DIESEL_CHAT_ID = process.env.DIESEL_CHAT_ID;
 
-const sendToTelegram = async ({price, priceOld, type, chatId, image}) => {
+export const sendToTelegram = async ({price, priceOld, type, chatId, image}) => {
   if(price !== priceOld){
     const diff = Math.round((price - priceOld) * 1000 ) / 1000
     const msg = `*${date}/${new Date().getFullYear()}*: El precio ${type} es ${price}€, ha _${diff > 0 ? 'subido' : 'bajado'}_ *${Math.abs(diff)}€*`
