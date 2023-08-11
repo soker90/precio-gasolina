@@ -28,13 +28,13 @@ fetch(GEOPORTAL_URL, {headers: { 'Accept': ' application/json' }})
       dataSaved.diesel.push(priceGasoleoA)
     }
     
-    const dates = dataSaved.dates.slice(dataSaved.dates.length -7, dataSaved.dates.length);
+    const dates = dataSaved.dates.slice(dataSaved.dates.length -30, dataSaved.dates.length);
     dataSaved.dates = dates;
 
-    const gasolina = dataSaved.gasolina.slice(dataSaved.gasolina.length -7, dataSaved.gasolina.length);
+    const gasolina = dataSaved.gasolina.slice(dataSaved.gasolina.length -30, dataSaved.gasolina.length);
     dataSaved.gasolina = gasolina;
 
-    const diesel = dataSaved.diesel.slice(dataSaved.diesel.length -7, dataSaved.diesel.length);
+    const diesel = dataSaved.diesel.slice(dataSaved.diesel.length -30, dataSaved.diesel.length);
     dataSaved.diesel = diesel;
 
     writeFile(dataSaved)
