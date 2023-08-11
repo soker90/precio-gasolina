@@ -6,7 +6,6 @@ const { dotenv } = pkg;
 pkg.config();
 
 const TOKEN_TELEGRAM = process.env.TOKEN_TELEGRAM
-console.log(TOKEN_TELEGRAM)
 const bot = new TelegramBot(TOKEN_TELEGRAM)
 const GASOLINA_CHAT_ID = process.env.GASOLINA_CHAT_ID;
 const DIESEL_CHAT_ID = process.env.DIESEL_CHAT_ID;
@@ -33,9 +32,6 @@ sendToTelegram({
   date,
   image: generateChart(dataSaved, 'gasolina')
 }).catch(error => console.error('Error al enviar el precio de la gasolina', error))
-
-
-//////////////////////////////////////////////////
 
 sendToTelegram({
   price: dataSaved.diesel.at(-1),
