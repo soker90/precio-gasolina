@@ -1,4 +1,4 @@
-name: Descarga precio de hoy
+name: interactBot
 
 on:
   workflow_dispatch:
