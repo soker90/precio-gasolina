@@ -8,13 +8,14 @@
     "type": "git",
     "url": "git+https://github.com/soker90/precio-gasolina.git"
   },
-  "author": "Eduardo Parra",
+  "author": "Alejandro Serrano",
   "license": "GPL-3.0-or-later",
   "bugs": {
     "url": "https://github.com/soker90/precio-gasolina/issues"
   },
   "homepage": "https://github.com/soker90/precio-gasolina#readme",
   "dependencies": {
+    "dotenv": "^16.3.1",
     "node-fetch": "^3.2.10",
     "node-telegram-bot-api": "^0.59.0",
     "quickchart-js": "^3.1.0"
