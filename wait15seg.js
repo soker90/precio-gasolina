@@ -1,3 +1,3 @@
 setTimeout(() => {
-    log('server will start responding with OK from now on')
+    console.log('Waiting 15 seconds...')
   }, 15 * 1000)
