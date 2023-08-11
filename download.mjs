@@ -14,7 +14,6 @@ fetch(GEOPORTAL_URL, {headers: { 'Accept': ' application/json' }})
 .then(res => res.json())
 .then((stationData) => {
     let dataSaved = readFile();
-    console.log(dataSaved);
 
     const priceGasolina95 = Number(stationData['ListaEESSPrecio'][0]['Precio Gasolina 95 E5'].replace(',','.'));
     const priceGasoleoA = Number(stationData['ListaEESSPrecio'][0]['Precio Gasoleo A'].replace(',','.'));
@@ -29,9 +28,16 @@ fetch(GEOPORTAL_URL, {headers: { 'Accept': ' application/json' }})
       dataSaved.diesel.push(priceGasoleoA)
     }
     
-    writeFile(dataSaved)
+    const dates = dataSaved.dates.slice(dataSaved.dates.length -7, dataSaved.dates.length);
+    dataSaved.dates = dates;
 
-    // console.log(dataSaved)
+    const gasolina = dataSaved.gasolina.slice(dataSaved.gasolina.length -7, dataSaved.gasolina.length);
+    dataSaved.gasolina = gasolina;
+
+    const diesel = dataSaved.diesel.slice(dataSaved.diesel.length -7, dataSaved.diesel.length);
+    dataSaved.diesel = diesel;
+
+    writeFile(dataSaved)
 
     console.log(`Fecha ${date} => Gasolina 95: ${priceGasolina95} - Gasoleo A: ${priceGasoleoA}`)
     
