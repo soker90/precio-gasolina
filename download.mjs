@@ -15,8 +15,14 @@ fetch(GEOPORTAL_URL, {headers: { 'Accept': ' application/json' }})
 .then((stationData) => {
     let dataSaved = readFile();
 
+    //----------------------------------------------------------------
+    // Replace price string to number ',' => '.'
+    //----------------------------------------------------------------
+
     const priceGasolina95 = Number(stationData['ListaEESSPrecio'][0]['Precio Gasolina 95 E5'].replace(',','.'));
     const priceGasoleoA = Number(stationData['ListaEESSPrecio'][0]['Precio Gasoleo A'].replace(',','.'));
+    
+    //----------------------------------------------------------------
     
     if(dataSaved.dates.at(-1) === date){
       const numElments = dataSaved.dates.length - 1
@@ -28,6 +34,10 @@ fetch(GEOPORTAL_URL, {headers: { 'Accept': ' application/json' }})
       dataSaved.diesel.push(priceGasoleoA)
     }
     
+    //----------------------------------------------------------------
+    // Manage Data. 30 Days max
+    //----------------------------------------------------------------
+
     const dates = dataSaved.dates.slice(dataSaved.dates.length -30, dataSaved.dates.length);
     dataSaved.dates = dates;
 
@@ -38,6 +48,8 @@ fetch(GEOPORTAL_URL, {headers: { 'Accept': ' application/json' }})
     dataSaved.diesel = diesel;
 
     writeFile(dataSaved)
+
+    //----------------------------------------------------------------
 
     console.log(`Fecha ${date} => Gasolina 95: ${priceGasolina95} - Gasoleo A: ${priceGasoleoA}`)
     

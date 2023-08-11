@@ -37,12 +37,12 @@ sendToTelegram({
 
 //////////////////////////////////////////////////
 
-// sendToTelegram({
-//   price: dataSaved.diesel.at(-1),
-//   priceOld: dataSaved.diesel.at(-2),
-//   type: 'del diesel',
-//   chatId: DIESEL_CHAT_ID,
-//   date,
-//   image: generateChart(dataSaved, 'diesel')
-// }).catch(error => console.error('Error al enviar el precio del gasoil', error))
+sendToTelegram({
+  price: dataSaved.diesel.at(-1),
+  priceOld: dataSaved.diesel.at(-2),
+  type: 'del diesel',
+  chatId: DIESEL_CHAT_ID,
+  date,
+  image: generateChart(dataSaved, 'diesel')
+}).catch(error => console.error('Error al enviar el precio del gasoil', error))
   
