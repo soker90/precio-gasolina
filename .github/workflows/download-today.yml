@@ -23,6 +23,7 @@ jobs:
         node-version: 16
     - run: npm install
     - run: npm run download-today
+    - run: npm run wait-15seg
     - run: |
         git config user.name aserrno
         git config user.email alejandroserranonotivoli@gmail.com
