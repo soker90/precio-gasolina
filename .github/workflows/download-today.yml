@@ -23,10 +23,8 @@ jobs:
         node-version: 16.x
     - run: npm install
     - run: npm run download-today
-    - run: |
-        git config user.name "Eduardo Parra"
-        git config user.email eduparra90@gmail.com
-        git add .
-        git commit -m "Add report for today"
-        git push
+    - name: Add prices
+      uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: 'Add report for today'
     - run: npm run send
