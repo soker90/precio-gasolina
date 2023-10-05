@@ -24,6 +24,7 @@ jobs:
     - run: npm install
     - run: npm run download-today
     - name: Add prices
+      id: auto-commit-action
       uses: stefanzweifel/git-auto-commit-action@v4
       with:
         commit_message: 'Add report for today'
