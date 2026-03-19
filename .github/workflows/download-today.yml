@@ -16,13 +16,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Use Node.js version 16.x
-      uses: actions/setup-node@v1
+    - uses: actions/checkout@v4
+    - name: Use Node.js version 24.x
+      uses: actions/setup-node@v4
       with:
-        node-version: 16.x
+        node-version: 24.x
     - run: npm install
     - run: npm run download-today
+      env:
+        NODE_TLS_REJECT_UNAUTHORIZED: '0'
     - name: Add prices
       id: auto-commit-action
       uses: stefanzweifel/git-auto-commit-action@v4

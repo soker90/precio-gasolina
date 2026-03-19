@@ -1,4 +1,3 @@
-import fetch from 'node-fetch'
 import { readFile, writeFile } from './fileUtils.js'
 
 const FUEL_STATION_ID = process.env.FUEL_STATION_ID
@@ -6,7 +5,7 @@ const GEOPORTAL_URL = `https://geoportalgasolineras.es/rest/${FUEL_STATION_ID}/b
 
 const date = new Intl.DateTimeFormat('es-ES', { month: 'numeric', day: 'numeric' }).format(Date.now())
 
-fetch(GEOPORTAL_URL, {headers: { 'Accept': ' application/json' }})
+fetch(GEOPORTAL_URL, { headers: { 'Accept': 'application/json' } })
 .then(res => res.json())
 .then((stationData) => {
     let dataSaved = readFile()
