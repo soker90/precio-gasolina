@@ -14,8 +14,8 @@ const STATION_NAME_2 = process.env.STATION_NAME_2 || ''
 const sendMessage = async ({price, priceOld, type, chatId, stationName}) => {
   if(price !== priceOld){
     const diff = Math.round((price - priceOld) * 1000 ) / 1000
-    const fmtPrice = price.toLocaleString('es-ES')
-    const fmtDiff = Math.abs(diff).toLocaleString('es-ES')
+    const fmtPrice = price.toLocaleString('es-ES', { minimumFractionDigits: 3 })
+    const fmtDiff = Math.abs(diff).toLocaleString('es-ES', { minimumFractionDigits: 3 })
     const msg = `*${date}/${new Date().getFullYear()}*${stationName ? ` (*${stationName}*)` : ''}: El precio ${type} es ${fmtPrice}€, ha _${diff > 0 ? 'subido' : 'bajado'}_ *${fmtDiff}€*`
     console.log(msg)
     await bot.sendMessage(chatId, msg, {parse_mode : 'Markdown'});

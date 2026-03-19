@@ -46,7 +46,7 @@ export const generateChart = ( dataSaved, type, dataSaved2 = null, stationName1 
                 min: Math.trunc(Math.min(...allValues) * 100) / 100,
                 max: Math.max(...allValues),
                 callback: (val) => {
-                  return val.toLocaleString('es-ES') + '€';
+                  return val.toLocaleString('es-ES', { minimumFractionDigits: 3 }) + '€';
                 },
               },
             },

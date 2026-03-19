@@ -309,7 +309,7 @@
           },
           tooltip: {
             callbacks: {
-              label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString('es-ES')} €/L`
+              label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString('es-ES', { minimumFractionDigits: 3 })} €/L`
             }
           }
         },
@@ -322,7 +322,7 @@
             grid: { color: '#f0f0f0' },
             ticks: {
               font: { family: 'Inter', size: 11 },
-              callback: val => val.toLocaleString('es-ES') + ' €'
+              callback: val => val.toLocaleString('es-ES', { minimumFractionDigits: 3 }) + ' €'
             }
           }
         }
@@ -333,8 +333,8 @@
       const lastPrice = data.gasolina.at(-1)
       const lastDiesel = data.diesel.at(-1)
       const lastDate = data.dates.at(-1)
-      document.getElementById(priceId + '-gasolina').innerHTML = `${lastPrice.toLocaleString('es-ES')}<span> €/L</span>`
-      document.getElementById(priceId + '-diesel').innerHTML = `${lastDiesel.toLocaleString('es-ES')}<span> €/L</span>`
+      document.getElementById(priceId + '-gasolina').innerHTML = `${lastPrice.toLocaleString('es-ES', { minimumFractionDigits: 3 })}<span> €/L</span>`
+      document.getElementById(priceId + '-diesel').innerHTML = `${lastDiesel.toLocaleString('es-ES', { minimumFractionDigits: 3 })}<span> €/L</span>`
       document.getElementById(priceId + '-date').textContent = `Última actualización: ${lastDate}`
     }
 
