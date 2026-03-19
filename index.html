@@ -4,48 +4,294 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Precio de la Gasolina</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f5f6fa;
+      color: #1a1a2e;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #fff;
+      border-bottom: 1px solid #e8e8f0;
+      padding: 24px 40px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    header h1 {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #1a1a2e;
+    }
+
+    header span.subtitle {
+      font-size: 0.85rem;
+      color: #888;
+      font-weight: 400;
+      margin-left: 4px;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 0 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 48px;
+    }
+
+    .station {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .station-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .station-header h2 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #1a1a2e;
+    }
+
+    .station-header .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #e74c3c;
+    }
+
+    .station:nth-child(2) .station-header .dot {
+      background: #2980b9;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 24px 28px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .card .label {
+      font-size: 0.78rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #999;
+    }
+
+    .card .price {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1a1a2e;
+      line-height: 1;
+    }
+
+    .card .price span {
+      font-size: 1rem;
+      font-weight: 400;
+      color: #999;
+    }
+
+    .card .date {
+      font-size: 0.78rem;
+      color: #bbb;
+    }
+
+    .card.gasolina .label { color: #e74c3c; }
+    .card.diesel .label { color: #2980b9; }
+
+    .chart-wrapper {
+      background: #fff;
+      border-radius: 14px;
+      padding: 28px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+
+    .chart-wrapper canvas {
+      max-height: 280px;
+    }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #e8e8f0;
+    }
+
+    footer {
+      text-align: center;
+      padding: 32px;
+      font-size: 0.78rem;
+      color: #bbb;
+    }
+
+    @media (max-width: 600px) {
+      header { padding: 20px; }
+      main { margin: 24px auto; padding: 0 16px; gap: 36px; }
+      .card .price { font-size: 1.6rem; }
+    }
+  </style>
 </head>
 <body>
-  <div style="width: 80%; margin: auto;">
-    <canvas id="chart"></canvas>
-  </div>
+
+  <header>
+    <h1>Precio de la Gasolina <span class="subtitle">Alcázar de San Juan</span></h1>
+  </header>
+
+  <main>
+    <div class="station" id="station-barataria">
+      <div class="station-header">
+        <div class="dot"></div>
+        <h2>Barataria</h2>
+      </div>
+      <div class="cards">
+        <div class="card gasolina">
+          <div class="label">Gasolina 95</div>
+          <div class="price" id="barataria-gasolina">—<span> €/L</span></div>
+          <div class="date" id="barataria-date"></div>
+        </div>
+        <div class="card diesel">
+          <div class="label">Diesel A</div>
+          <div class="price" id="barataria-diesel">—<span> €/L</span></div>
+          <div class="date"></div>
+        </div>
+      </div>
+      <div class="chart-wrapper">
+        <canvas id="chart-barataria"></canvas>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <div class="station" id="station-plazatoros">
+      <div class="station-header">
+        <div class="dot"></div>
+        <h2>Plaza de Toros</h2>
+      </div>
+      <div class="cards">
+        <div class="card gasolina">
+          <div class="label">Gasolina 95</div>
+          <div class="price" id="plazatoros-gasolina">—<span> €/L</span></div>
+          <div class="date" id="plazatoros-date"></div>
+        </div>
+        <div class="card diesel">
+          <div class="label">Diesel A</div>
+          <div class="price" id="plazatoros-diesel">—<span> €/L</span></div>
+          <div class="date"></div>
+        </div>
+      </div>
+      <div class="chart-wrapper">
+        <canvas id="chart-plazatoros"></canvas>
+      </div>
+    </div>
+  </main>
+
+  <footer>Datos obtenidos de geoportalgasolineras.es</footer>
 
   <script>
+    const GASOLINA_COLOR = { border: 'rgb(231, 76, 60)', bg: 'rgba(231, 76, 60, 0.08)' }
+    const DIESEL_COLOR   = { border: 'rgb(41, 128, 185)', bg: 'rgba(41, 128, 185, 0.08)' }
 
-    fetch('./data.json')
-      .then(response => response.json())
-      .then(data => {
-        console.log(data);
+    const chartDefaults = (data, labels) => ({
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          {
+            label: 'Gasolina 95',
+            data: data.gasolina,
+            borderColor: GASOLINA_COLOR.border,
+            backgroundColor: GASOLINA_COLOR.bg,
+            borderWidth: 2,
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            tension: 0.3,
+            fill: true,
+          },
+          {
+            label: 'Diesel A',
+            data: data.diesel,
+            borderColor: DIESEL_COLOR.border,
+            backgroundColor: DIESEL_COLOR.bg,
+            borderWidth: 2,
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            tension: 0.3,
+            fill: true,
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: {
+            position: 'top',
+            labels: { font: { family: 'Inter', size: 12 }, boxWidth: 12, padding: 16 }
+          },
+          tooltip: {
+            callbacks: {
+              label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toFixed(3)} €/L`
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: '#f0f0f0' },
+            ticks: { font: { family: 'Inter', size: 11 }, maxTicksLimit: 10 }
+          },
+          y: {
+            grid: { color: '#f0f0f0' },
+            ticks: {
+              font: { family: 'Inter', size: 11 },
+              callback: val => val.toFixed(3) + ' €'
+            }
+          }
+        }
+      }
+    })
 
-        const datosGasolina = {
-      labels: data.dates,
-      datasets: [{
-        label: 'Gasolina',
-        backgroundColor: 'rgba(75, 192, 192, 0.2)',
-        borderColor: 'rgba(75, 192, 192, 1)',
-        borderWidth: 2,
-        data: data.gasolina
-      },{
-        label: 'Diesel',
-        backgroundColor: 'rgba(255, 99, 132, 0.2)',
-        borderColor: 'rgba(255, 99, 132, 1)',
-        borderWidth: 2,
-        data: data.diesel
-      }]
-    };
+    const setCard = (priceId, dateId, data) => {
+      const lastPrice = data.gasolina.at(-1)
+      const lastDiesel = data.diesel.at(-1)
+      const lastDate = data.dates.at(-1)
+      document.getElementById(priceId + '-gasolina').innerHTML = `${lastPrice.toFixed(3)}<span> €/L</span>`
+      document.getElementById(priceId + '-diesel').innerHTML = `${lastDiesel.toFixed(3)}<span> €/L</span>`
+      document.getElementById(priceId + '-date').textContent = `Última actualización: ${lastDate}`
+    }
 
-    // Configuración del gráfico
-    const config = {
-        type: 'line',
-        data: datosGasolina,
-      };
+    Promise.all([
+      fetch('./data.json').then(r => r.json()),
+      fetch('./data-5143.json').then(r => r.json())
+    ]).then(([barataria, plazatoros]) => {
+      setCard('barataria', 'barataria-date', barataria)
+      new Chart(document.getElementById('chart-barataria'), chartDefaults(barataria, barataria.dates))
 
-    // Crear el gráfico en el contexto del canvas
-    const ctx = document.getElementById('chart').getContext('2d');
-    new Chart(ctx, config);
-      });
-    
+      setCard('plazatoros', 'plazatoros-date', plazatoros)
+      new Chart(document.getElementById('chart-plazatoros'), chartDefaults(plazatoros, plazatoros.dates))
+    })
   </script>
+
 </body>
 </html>
