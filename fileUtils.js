@@ -1,11 +1,13 @@
 import fs from 'fs'
 
-export const readFile = () =>{
-  const fileSaved = fs.readFileSync('./data.json', 'utf8')
+const DEFAULT_FILE = './data.json'
+
+export const readFile = (file = DEFAULT_FILE) => {
+  const fileSaved = fs.readFileSync(file, 'utf8')
   return JSON.parse(fileSaved)
 }
 
-export const writeFile = dataSaved =>{
+export const writeFile = (dataSaved, file = DEFAULT_FILE) => {
   const newData = JSON.stringify(dataSaved, null, 2);
-  fs.writeFileSync('./data.json', newData)
+  fs.writeFileSync(file, newData)
 }

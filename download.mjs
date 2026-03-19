@@ -1,6 +1,7 @@
 import { readFile, writeFile } from './fileUtils.js'
 
 const FUEL_STATION_ID = process.env.FUEL_STATION_ID
+const DATA_FILE = process.env.DATA_FILE || './data.json'
 const GEOPORTAL_URL = `https://geoportalgasolineras.es/rest/${FUEL_STATION_ID}/busquedaEstacionPrecio`
 
 const date = new Intl.DateTimeFormat('es-ES', { month: 'numeric', day: 'numeric' }).format(Date.now())
@@ -8,7 +9,7 @@ const date = new Intl.DateTimeFormat('es-ES', { month: 'numeric', day: 'numeric'
 fetch(GEOPORTAL_URL, { headers: { 'Accept': 'application/json' } })
 .then(res => res.json())
 .then((stationData) => {
-    let dataSaved = readFile()
+    let dataSaved = readFile(DATA_FILE)
     
     if(dataSaved.dates.at(-1) === date){
       const numElments = dataSaved.dates.length - 1
@@ -20,7 +21,7 @@ fetch(GEOPORTAL_URL, { headers: { 'Accept': 'application/json' } })
       dataSaved.diesel.push(stationData.precioGasoleoA)
     }
     
-    writeFile(dataSaved)
+    writeFile(dataSaved, DATA_FILE)
 
     console.log(`Guardado con fecha ${date}: gasolina: ${stationData.precioGasolina95E5} y gasoil: ${stationData.precioGasoleoA}`)
     

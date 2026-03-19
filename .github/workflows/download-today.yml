@@ -9,7 +9,6 @@ env:
   GASOLINA_CHAT_ID: ${{ secrets.GASOLINA_CHAT_ID }}
   DIESEL_CHAT_ID: ${{ secrets.DIESEL_CHAT_ID }}
   TOKEN_TELEGRAM: ${{ secrets.TOKEN_TELEGRAM }}
-  FUEL_STATION_ID: 5205
 
 jobs:
   downloadStatus:
@@ -22,9 +21,17 @@ jobs:
       with:
         node-version: 24.x
     - run: npm install
-    - run: npm run download-today
+    - name: Descarga gasolinera Barataria
+      run: npm run download-today
       env:
         NODE_TLS_REJECT_UNAUTHORIZED: '0'
+        FUEL_STATION_ID: 5205
+    - name: Descarga gasolinera Plaza de Toros
+      run: npm run download-today
+      env:
+        NODE_TLS_REJECT_UNAUTHORIZED: '0'
+        FUEL_STATION_ID: 5143
+        DATA_FILE: ./data-5143.json
     - name: Add prices
       id: auto-commit-action
       uses: stefanzweifel/git-auto-commit-action@v4
@@ -33,3 +40,7 @@ jobs:
     - name: "Send to telegram if changes have been detected"
       if: steps.auto-commit-action.outputs.changes_detected == 'true'
       run: npm run send
+      env:
+        DATA_FILE_2: ./data-5143.json
+        STATION_NAME_1: Barataria
+        STATION_NAME_2: Plaza de Toros
