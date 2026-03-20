@@ -29,7 +29,7 @@ const sendMessage = async ({price, priceOld, type, chatId, stationName, isIntraD
     const diff = Math.round((price - priceOld) * 1000 ) / 1000
     const fmtPrice = price.toLocaleString('es-ES', { minimumFractionDigits: 3 })
     const fmtDiff = Math.abs(diff).toLocaleString('es-ES', { minimumFractionDigits: 3 })
-    const intraDaySuffix = isIntraDay ? ' _(actualización del día)_' : ''
+    const intraDaySuffix = isIntraDay ? ' _(nuevo precio del día)_' : ''
     const msg = `*${date}/${new Date().getFullYear()}*${stationName ? ` (*${stationName}*)` : ''}: El precio ${type} es ${fmtPrice}€, ha _${diff > 0 ? 'subido' : 'bajado'}_ *${fmtDiff}€*${intraDaySuffix}`
     console.log(msg)
     await bot.sendMessage(chatId, msg, {parse_mode : 'Markdown'});
