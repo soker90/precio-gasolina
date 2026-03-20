@@ -24,12 +24,13 @@ const readPrevFile = (dataFile) => {
   return null
 }
 
-const sendMessage = async ({price, priceOld, type, chatId, stationName}) => {
+const sendMessage = async ({price, priceOld, type, chatId, stationName, isIntraDay = false}) => {
   if(price !== priceOld){
     const diff = Math.round((price - priceOld) * 1000 ) / 1000
     const fmtPrice = price.toLocaleString('es-ES', { minimumFractionDigits: 3 })
     const fmtDiff = Math.abs(diff).toLocaleString('es-ES', { minimumFractionDigits: 3 })
-    const msg = `*${date}/${new Date().getFullYear()}*${stationName ? ` (*${stationName}*)` : ''}: El precio ${type} es ${fmtPrice}€, ha _${diff > 0 ? 'subido' : 'bajado'}_ *${fmtDiff}€*`
+    const intraDaySuffix = isIntraDay ? ' _(actualización del día)_' : ''
+    const msg = `*${date}/${new Date().getFullYear()}*${stationName ? ` (*${stationName}*)` : ''}: El precio ${type} es ${fmtPrice}€, ha _${diff > 0 ? 'subido' : 'bajado'}_ *${fmtDiff}€*${intraDaySuffix}`
     console.log(msg)
     await bot.sendMessage(chatId, msg, {parse_mode : 'Markdown'});
     return true
@@ -63,6 +64,7 @@ const sendGasolina = async () => {
     type: 'de la gasolina',
     chatId: GASOLINA_CHAT_ID,
     stationName: STATION_NAME_1,
+    isIntraDay: !!prev1,
   })
   const sent2 = await sendMessage({
     price: dataSaved2.gasolina.at(-1),
@@ -70,6 +72,7 @@ const sendGasolina = async () => {
     type: 'de la gasolina',
     chatId: GASOLINA_CHAT_ID,
     stationName: STATION_NAME_2,
+    isIntraDay: !!prev2,
   })
   if (sent1 || sent2) {
     await bot.sendPhoto(GASOLINA_CHAT_ID, gasolinaChart)
@@ -83,6 +86,7 @@ const sendDiesel = async () => {
     type: 'del diesel',
     chatId: DIESEL_CHAT_ID,
     stationName: STATION_NAME_1,
+    isIntraDay: !!prev1,
   })
   const sent2 = await sendMessage({
     price: dataSaved2.diesel.at(-1),
@@ -90,6 +94,7 @@ const sendDiesel = async () => {
     type: 'del diesel',
     chatId: DIESEL_CHAT_ID,
     stationName: STATION_NAME_2,
+    isIntraDay: !!prev2,
   })
   if (sent1 || sent2) {
     await bot.sendPhoto(DIESEL_CHAT_ID, dieselChart)
