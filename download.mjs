@@ -36,6 +36,11 @@ fetch(GEOPORTAL_URL, { headers: { 'Accept': 'application/json' } })
       dataSaved.diesel.push(stationData.precioGasoleoA)
     }
     
+    // Mantener solo los últimos 45 días
+    dataSaved.dates    = dataSaved.dates.slice(-45)
+    dataSaved.gasolina = dataSaved.gasolina.slice(-45)
+    dataSaved.diesel   = dataSaved.diesel.slice(-45)
+
     writeFile(dataSaved, DATA_FILE)
 
     console.log(`Guardado con fecha ${date}: gasolina: ${stationData.precioGasolina95E5} y gasoil: ${stationData.precioGasoleoA}`)
