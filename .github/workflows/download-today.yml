@@ -3,7 +3,8 @@ name: Descarga precio de hoy
 on:
   workflow_dispatch:
   schedule:
-    - cron: 30 6,9,12,15,17 * * *
+    - cron: 0 7-18 * * *  # Invierno CET (UTC+1): 8h-19h España
+    - cron: 0 6-17 * * *  # Verano CEST (UTC+2): 8h-19h España
 
 env:
   GASOLINA_CHAT_ID: ${{ secrets.GASOLINA_CHAT_ID }}
