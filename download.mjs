@@ -4,7 +4,7 @@ import path from 'path'
 
 const FUEL_STATION_ID = process.env.FUEL_STATION_ID
 const DATA_FILE = process.env.DATA_FILE || './data.json'
-const GEOPORTAL_URL = `https://geoportalgasolineras.es/rest/${FUEL_STATION_ID}/busquedaEstacionPrecio`
+const GEOPORTAL_URL = `https://geoportalgasolineras.es/geoportal/rest/${FUEL_STATION_ID}/busquedaEstacionPrecio`
 
 const date = new Intl.DateTimeFormat('es-ES', { month: 'numeric', day: 'numeric' }).format(Date.now())
 
