@@ -27,16 +27,16 @@ test('updates the current day and returns the previous values for Telegram', () 
 test('appends a new day and trims all arrays consistently', () => {
   const longHistory = {
     dates: Array.from({ length: 45 }, (_, index) => {
-      const date = new Date(Date.UTC(2026, 0, index + 1))
+      const date = new Date(Date.UTC(2026, 2, index + 1))
       return `${date.getUTCDate()}/${date.getUTCMonth() + 1}`
     }),
     gasolina: Array(45).fill(1.7),
     diesel: Array(45).fill(1.9),
   }
-  const result = updatePriceHistory(longHistory, '1/2', { gasoline: 1.8, diesel: 2 })
+  const result = updatePriceHistory(longHistory, '15/4', { gasoline: 1.8, diesel: 2 })
   assert.equal(result.history.dates.length, 45)
-  assert.equal(result.history.dates[0], '2/1')
-  assert.equal(result.history.dates.at(-1), '1/2')
+  assert.equal(result.history.dates[0], '2/3')
+  assert.equal(result.history.dates.at(-1), '15/4')
   assert.equal(result.previous, null)
 })
 
