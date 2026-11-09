@@ -45,7 +45,7 @@ test('fails on HTML responses and invalid prices', async () => {
         text: async () => '<html>maintenance</html>',
       }),
     }),
-    /non-JSON response/,
+    error => error.cause?.message.includes('non-JSON response'),
   )
 
   await assert.rejects(
@@ -70,7 +70,7 @@ test('does not retry permanent client errors', async () => {
         return jsonResponse({}, 404)
       },
     }),
-    /HTTP 404/,
+    error => error.cause?.message.includes('HTTP 404'),
   )
   assert.equal(calls, 1)
 })
