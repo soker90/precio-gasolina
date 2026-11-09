@@ -26,7 +26,10 @@ test('updates the current day and returns the previous values for Telegram', () 
 
 test('appends a new day and trims all arrays consistently', () => {
   const longHistory = {
-    dates: Array.from({ length: 45 }, (_, index) => {\n      const date = new Date(Date.UTC(2026, 0, index + 1))\n      return `${date.getUTCDate()}/${date.getUTCMonth() + 1}`\n    }),
+    dates: Array.from({ length: 45 }, (_, index) => {
+      const date = new Date(Date.UTC(2026, 0, index + 1))
+      return `${date.getUTCDate()}/${date.getUTCMonth() + 1}`
+    }),
     gasolina: Array(45).fill(1.7),
     diesel: Array(45).fill(1.9),
   }
