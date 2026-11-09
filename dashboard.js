@@ -100,9 +100,11 @@ async function loadDashboard() {
   const loaded = results
     .filter(result => result.status === 'fulfilled')
     .map(result => result.value)
-  const failed = results
-    .filter(result => result.status === 'rejected')
-    .map((result, index) => `${stations[results.indexOf(result)].name}: ${result.reason.message}`)
+  const failed = results.flatMap((result, index) => (
+    result.status === 'rejected'
+      ? [`${stations[index].name}: ${result.reason.message}`]
+      : []
+  ))
 
   if (loaded.length === 0) {
     status.textContent = `No se han podido cargar los precios. ${failed.join(' · ')}`
