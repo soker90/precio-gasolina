@@ -40,22 +40,27 @@ export function getDateAge(dateLabel, now = new Date()) {
 
   const day = Number(match[1])
   const month = Number(match[2])
-  const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())
-  const currentYearDate = new Date(Date.UTC(now.getFullYear(), month - 1, day))
+  const madridDate = Object.fromEntries(
+    new Intl.DateTimeFormat('en', {
+      timeZone: 'Europe/Madrid',
+      year: 'numeric',
+      month: 'numeric',
+      day: 'numeric',
+    }).formatToParts(now).map(part => [part.type, Number(part.value)]),
+  )
+  const today = Date.UTC(madridDate.year, madridDate.month - 1, madridDate.day)
 
-  if (
-    currentYearDate.getUTCDate() !== day ||
-    currentYearDate.getUTCMonth() !== month - 1
-  ) {
-    return null
+  // Search backwards so dates such as 29/2 remain valid across non-leap years.
+  for (let year = madridDate.year; year >= madridDate.year - 4; year -= 1) {
+    const candidate = new Date(Date.UTC(year, month - 1, day))
+    if (
+      candidate.getUTCDate() === day &&
+      candidate.getUTCMonth() === month - 1 &&
+      candidate.getTime() <= today
+    ) {
+      return Math.floor((today - candidate.getTime()) / 86_400_000)
+    }
   }
 
-  let timestamp = currentYearDate.getTime()
-  if (timestamp > today) {
-    const previousYearDate = new Date(Date.UTC(now.getFullYear() - 1, month - 1, day))
-    if (previousYearDate.getUTCDate() !== day || previousYearDate.getUTCMonth() !== month - 1) return null
-    timestamp = previousYearDate.getTime()
-  }
-
-  return Math.floor((today - timestamp) / 86_400_000)
+  return null
 }
