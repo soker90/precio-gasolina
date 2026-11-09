@@ -139,6 +139,22 @@
       border-top: 1px solid #e8e8f0;
     }
 
+    .data-status {
+      max-width: 1100px;
+      margin: 20px auto -20px;
+      padding: 0 24px;
+      font-size: 0.85rem;
+      color: #52715a;
+    }
+
+    .data-status.error {
+      color: #b42318;
+    }
+
+    .data-status.warning {
+      color: #946200;
+    }
+
     .telegram-buttons {
       display: flex;
       gap: 12px;
@@ -202,6 +218,8 @@
   <header>
     <h1>Precio de la Gasolina <span class="subtitle">Alcázar de San Juan</span></h1>
   </header>
+
+  <p class="data-status" id="data-status" role="status" aria-live="polite">Cargando precios…</p>
 
   <main>
     <div class="station" id="station-barataria">
@@ -329,24 +347,71 @@
       }
     })
 
-    const setCard = (priceId, dateId, data) => {
+    const setCard = (stationId, data) => {
       const lastPrice = data.gasolina.at(-1)
       const lastDiesel = data.diesel.at(-1)
       const lastDate = data.dates.at(-1)
-      document.getElementById(priceId + '-gasolina').innerHTML = `${lastPrice.toLocaleString('es-ES', { minimumFractionDigits: 3 })}<span> €/L</span>`
-      document.getElementById(priceId + '-diesel').innerHTML = `${lastDiesel.toLocaleString('es-ES', { minimumFractionDigits: 3 })}<span> €/L</span>`
-      document.getElementById(priceId + '-date').textContent = `Última actualización: ${lastDate}`
+      document.getElementById(stationId + '-gasolina').innerHTML = `${lastPrice.toLocaleString('es-ES', { minimumFractionDigits: 3 })}<span> €/L</span>`
+      document.getElementById(stationId + '-diesel').innerHTML = `${lastDiesel.toLocaleString('es-ES', { minimumFractionDigits: 3 })}<span> €/L</span>`
+      document.getElementById(stationId + '-date').textContent = `Última actualización: ${lastDate}`
+    }
+
+    const validateData = (data, filename) => {
+      if (
+        !data ||
+        !Array.isArray(data.dates) ||
+        !Array.isArray(data.gasolina) ||
+        !Array.isArray(data.diesel) ||
+        data.dates.length === 0 ||
+        data.dates.length !== data.gasolina.length ||
+        data.dates.length !== data.diesel.length ||
+        !Number.isFinite(Number(data.gasolina.at(-1))) ||
+        !Number.isFinite(Number(data.diesel.at(-1)))
+      ) {
+        throw new Error(`El archivo ${filename} no contiene un histórico de precios válido.`)
+      }
+      return data
+    }
+
+    const fetchPriceData = async filename => {
+      // Evita que el navegador o una caché intermedia reutilicen un JSON antiguo.
+      const response = await fetch(`./${filename}?v=${Date.now()}`, { cache: 'no-store' })
+      if (!response.ok) throw new Error(`No se pudo cargar ${filename} (HTTP ${response.status}).`)
+      return validateData(await response.json(), filename)
+    }
+
+    const getDateAge = value => {
+      const [day, month] = value.split('/').map(Number)
+      if (!day || !month) return null
+      const now = new Date()
+      const date = new Date(now.getFullYear(), month - 1, day)
+      if (date > now) date.setFullYear(date.getFullYear() - 1)
+      return Math.floor((new Date(now.getFullYear(), now.getMonth(), now.getDate()) - date) / 86_400_000)
     }
 
     Promise.all([
-      fetch('./data.json').then(r => r.json()),
-      fetch('./data-5143.json').then(r => r.json())
+      fetchPriceData('data.json'),
+      fetchPriceData('data-5143.json')
     ]).then(([barataria, plazatoros]) => {
-      setCard('barataria', 'barataria-date', barataria)
+      setCard('barataria', barataria)
       new Chart(document.getElementById('chart-barataria'), chartDefaults(barataria, barataria.dates))
 
-      setCard('plazatoros', 'plazatoros-date', plazatoros)
+      setCard('plazatoros', plazatoros)
       new Chart(document.getElementById('chart-plazatoros'), chartDefaults(plazatoros, plazatoros.dates))
+
+      const ages = [getDateAge(barataria.dates.at(-1)), getDateAge(plazatoros.dates.at(-1))]
+      const status = document.getElementById('data-status')
+      if (ages.some(age => age === null || age > 1)) {
+        status.textContent = 'Aviso: los precios publicados pueden estar desactualizados. Últimas fechas: Barataria ' + barataria.dates.at(-1) + ', Plaza de Toros ' + plazatoros.dates.at(-1) + '.'
+        status.classList.add('warning')
+      } else {
+        status.textContent = 'Precios cargados correctamente. Última actualización: Barataria ' + barataria.dates.at(-1) + ' · Plaza de Toros ' + plazatoros.dates.at(-1) + '.'
+      }
+    }).catch(error => {
+      const status = document.getElementById('data-status')
+      status.textContent = 'No se han podido cargar los precios: ' + error.message
+      status.classList.add('error')
+      console.error('Error cargando precios:', error)
     })
   </script>
 
