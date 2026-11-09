@@ -15,7 +15,7 @@ test('validates the existing historical data format', () => {
 test('rejects mismatched arrays and invalid historical prices', () => {
   assert.throws(() => validatePriceHistory({ ...history, diesel: [1.9] }), /Invalid historical data structure/)
   assert.throws(() => validatePriceHistory({ ...history, gasolina: [1.7, 0] }), /Invalid gasoline price/)
-  assert.throws(() => validatePriceHistory({ ...history, dates: ['31/2'] }), /Invalid date/)
+  assert.throws(() => validatePriceHistory({ ...history, dates: ['31/2', '8/11'] }), /Invalid date/)
 })
 
 test('updates the current day and returns the previous values for Telegram', () => {
