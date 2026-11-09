@@ -54,7 +54,7 @@ test('fails on HTML responses and invalid prices', async () => {
       attempts: 1,
       fetchImpl: async () => jsonResponse({ precioGasolina95E5: 0, precioGasoleoA: 1.9 }),
     }),
-    /invalid fuel prices/,
+    error => error.cause?.message.includes('invalid fuel prices'),
   )
 })
 
