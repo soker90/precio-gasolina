@@ -3,8 +3,8 @@ name: Descarga precio de hoy
 on:
   workflow_dispatch:
   schedule:
-    # Geoportal updates prices twice daily; check after both publication windows.
-    - cron: '15 7,19 * * *'
+    # Keep the daytime polling window to catch both Geoportal price publications.
+    - cron: '0 7-17 * * *'
 
 permissions:
   contents: write
@@ -19,39 +19,42 @@ env:
   TOKEN_TELEGRAM: ${{ secrets.TOKEN_TELEGRAM }}
 
 jobs:
-  downloadStatus:
+  download:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Use Node.js version 24.x
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24.x
+          node-version: 24
+          cache: npm
 
-      - run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Descarga gasolinera Barataria
+      - name: Download Barataria prices
         run: npm run download-today
         env:
           FUEL_STATION_ID: 5205
 
-      - name: Descarga gasolinera Plaza de Toros
+      - name: Download Plaza de Toros prices
         run: npm run download-today
         env:
           FUEL_STATION_ID: 5143
           DATA_FILE: ./data-5143.json
 
-      - name: Add prices
-        id: auto-commit-action
+      - name: Commit price history
+        id: commit
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: 'Add report for today'
+          commit_message: 'chore(data): update fuel prices'
           file_pattern: 'data.json data-5143.json'
 
-      - name: Send to telegram if changes have been detected
-        if: steps.auto-commit-action.outputs.changes_detected == 'true'
+      - name: Send Telegram notifications
+        if: steps.commit.outputs.changes_detected == 'true'
         run: npm run send
         env:
           DATA_FILE_2: ./data-5143.json
