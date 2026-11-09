@@ -1,4 +1,4 @@
-import TelegramBot from 'node-telegram-bot-api'
+import { createTelegramClient } from './telegram.js'
 import { readFile } from './fileUtils.js'
 import { generateChart } from './generateChart.js'
 import { validatePriceHistory } from './price-history.js'
@@ -17,7 +17,7 @@ if (!TOKEN_TELEGRAM || !GASOLINA_CHAT_ID || !DIESEL_CHAT_ID) {
   throw new Error('TOKEN_TELEGRAM, GASOLINA_CHAT_ID and DIESEL_CHAT_ID are required')
 }
 
-const bot = new TelegramBot(TOKEN_TELEGRAM)
+const bot = createTelegramClient({ token: TOKEN_TELEGRAM })
 
 function readPreviousPrices(dataFile) {
   const directory = path.dirname(dataFile)
