@@ -25,6 +25,6 @@
     "download-today": "node download.mjs",
     "send": "node sendToTelegram.js",
     "test": "node --test",
-    "check": "node --check download.mjs && node --check sendToTelegram.js && node --check dashboard.js"
+    "check": "node --check config.js && node --check geoportal.js && node --check price-history.js && node --check price-data.js && node --check dashboard.js && node --check download.mjs && node --check sendToTelegram.js && node --check generateChart.js && node --check fileUtils.js"
   }
 }
