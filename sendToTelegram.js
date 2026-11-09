@@ -1,105 +1,122 @@
 import TelegramBot from 'node-telegram-bot-api'
 import { readFile } from './fileUtils.js'
 import { generateChart } from './generateChart.js'
-import fs from 'fs'
-import path from 'path'
+import { validatePriceHistory } from './price-history.js'
+import fs from 'node:fs'
+import path from 'node:path'
 
 const TOKEN_TELEGRAM = process.env.TOKEN_TELEGRAM
-const bot = new TelegramBot(TOKEN_TELEGRAM)
-const GASOLINA_CHAT_ID = process.env.GASOLINA_CHAT_ID;
-const DIESEL_CHAT_ID = process.env.DIESEL_CHAT_ID;
+const GASOLINA_CHAT_ID = process.env.GASOLINA_CHAT_ID
+const DIESEL_CHAT_ID = process.env.DIESEL_CHAT_ID
 const DATA_FILE = process.env.DATA_FILE || './data.json'
 const DATA_FILE_2 = process.env.DATA_FILE_2 || './data-5143.json'
 const STATION_NAME_1 = process.env.STATION_NAME_1 || ''
 const STATION_NAME_2 = process.env.STATION_NAME_2 || ''
 
-// Lee el archivo de precios previos (intra-día) si existe
-const readPrevFile = (dataFile) => {
-  const dir = path.dirname(dataFile)
-  const base = path.basename(dataFile)
-  const prevFile = path.join(dir, `previous-${base}`)
-  if (fs.existsSync(prevFile)) {
-    try { return JSON.parse(fs.readFileSync(prevFile, 'utf8')) } catch { return null }
-  }
-  return null
+if (!TOKEN_TELEGRAM || !GASOLINA_CHAT_ID || !DIESEL_CHAT_ID) {
+  throw new Error('TOKEN_TELEGRAM, GASOLINA_CHAT_ID and DIESEL_CHAT_ID are required')
 }
 
-const sendMessage = async ({price, priceOld, type, chatId, stationName, isIntraDay = false}) => {
-  if(price !== priceOld){
-    const diff = Math.round((price - priceOld) * 1000 ) / 1000
-    const fmtPrice = price.toLocaleString('es-ES', { minimumFractionDigits: 3 })
-    const fmtDiff = Math.abs(diff).toLocaleString('es-ES', { minimumFractionDigits: 3 })
-    const intraDaySuffix = isIntraDay ? ' _(nuevo precio del día)_' : ''
-    const msg = `*${date}/${new Date().getFullYear()}*${stationName ? ` (*${stationName}*)` : ''}: El precio ${type} es ${fmtPrice}€, ha _${diff > 0 ? 'subido' : 'bajado'}_ *${fmtDiff}€*${intraDaySuffix}`
-    console.log(msg)
-    await bot.sendMessage(chatId, msg, {parse_mode : 'Markdown'});
-    return true
+const bot = new TelegramBot(TOKEN_TELEGRAM)
+
+function readPreviousPrices(dataFile) {
+  const directory = path.dirname(dataFile)
+  const basename = path.basename(dataFile)
+  const previousFile = path.join(directory, `previous-${basename}`)
+
+  if (!fs.existsSync(previousFile)) return null
+
+  try {
+    return JSON.parse(fs.readFileSync(previousFile, 'utf8'))
+  } catch (error) {
+    throw new Error(`Could not read previous prices from ${previousFile}`, { cause: error })
   }
-  return false
 }
 
-const dataSaved = readFile(DATA_FILE)
-const dataSaved2 = readFile(DATA_FILE_2)
-const date = dataSaved.dates.at(-1)
+async function sendMessage({ price, previousPrice, type, chatId, stationName, isIntraDay = false }) {
+  if (!Number.isFinite(previousPrice)) {
+    console.warn(`Skipping ${type} notification: no previous price is available`)
+    return false
+  }
 
-// Precios previos intra-día (si existen, significa que es un upsert del mismo día)
-const prev1 = readPrevFile(DATA_FILE)
-const prev2 = readPrevFile(DATA_FILE_2)
+  if (price === previousPrice) return false
 
-// Para cada estación y tipo de combustible:
-// - Si hay archivo previo (mismo día, upsert): comparar contra ese precio previo de hoy
-// - Si no hay archivo previo (día nuevo): comparar contra el precio de ayer (.at(-2))
-const gasolinaPrevStation1 = (prev1 && prev1.date === dataSaved.dates.at(-1)) ? prev1.gasolina : dataSaved.gasolina.at(-2)
-const dieselPrevStation1   = (prev1 && prev1.date === dataSaved.dates.at(-1)) ? prev1.diesel   : dataSaved.diesel.at(-2)
-const gasolinaPrevStation2 = (prev2 && prev2.date === dataSaved2.dates.at(-1)) ? prev2.gasolina : dataSaved2.gasolina.at(-2)
-const dieselPrevStation2   = (prev2 && prev2.date === dataSaved2.dates.at(-1)) ? prev2.diesel   : dataSaved2.diesel.at(-2)
+  const difference = Math.round((price - previousPrice) * 1000) / 1000
+  const formattedPrice = price.toLocaleString('es-ES', { minimumFractionDigits: 3 })
+  const formattedDifference = Math.abs(difference).toLocaleString('es-ES', { minimumFractionDigits: 3 })
+  const intraDaySuffix = isIntraDay ? ' _(nuevo precio del día)_' : ''
+  const date = dataSaved.dates.at(-1)
+  const station = stationName ? ` (*${stationName}*)` : ''
+  const direction = difference > 0 ? 'subido' : 'bajado'
+  const message = `*${date}/${new Date().getFullYear()}*${station}: El precio ${type} es ${formattedPrice}€, ha _${direction}_ *${formattedDifference}€*${intraDaySuffix}`
 
-const gasolinaChart = generateChart(dataSaved, 'gasolina', dataSaved2, STATION_NAME_1, STATION_NAME_2)
+  console.log(message)
+  await bot.sendMessage(chatId, message, { parse_mode: 'Markdown' })
+  return true
+}
+
+const dataSaved = validatePriceHistory(readFile(DATA_FILE), DATA_FILE)
+const dataSaved2 = validatePriceHistory(readFile(DATA_FILE_2), DATA_FILE_2)
+const previous1 = readPreviousPrices(DATA_FILE)
+const previous2 = readPreviousPrices(DATA_FILE_2)
+
+const previousGasoline1 = previous1?.date === dataSaved.dates.at(-1)
+  ? previous1.gasolina
+  : dataSaved.gasolina.at(-2)
+const previousDiesel1 = previous1?.date === dataSaved.dates.at(-1)
+  ? previous1.diesel
+  : dataSaved.diesel.at(-2)
+const previousGasoline2 = previous2?.date === dataSaved2.dates.at(-1)
+  ? previous2.gasolina
+  : dataSaved2.gasolina.at(-2)
+const previousDiesel2 = previous2?.date === dataSaved2.dates.at(-1)
+  ? previous2.diesel
+  : dataSaved2.diesel.at(-2)
+
+const gasolineChart = generateChart(dataSaved, 'gasolina', dataSaved2, STATION_NAME_1, STATION_NAME_2)
 const dieselChart = generateChart(dataSaved, 'diesel', dataSaved2, STATION_NAME_1, STATION_NAME_2)
 
-const sendGasolina = async () => {
-  const sent1 = await sendMessage({
-    price: dataSaved.gasolina.at(-1),
-    priceOld: gasolinaPrevStation1,
-    type: 'de la gasolina',
-    chatId: GASOLINA_CHAT_ID,
-    stationName: STATION_NAME_1,
-    isIntraDay: !!prev1,
-  })
-  const sent2 = await sendMessage({
-    price: dataSaved2.gasolina.at(-1),
-    priceOld: gasolinaPrevStation2,
-    type: 'de la gasolina',
-    chatId: GASOLINA_CHAT_ID,
-    stationName: STATION_NAME_2,
-    isIntraDay: !!prev2,
-  })
-  if (sent1 || sent2) {
-    await bot.sendPhoto(GASOLINA_CHAT_ID, gasolinaChart)
-  }
+async function sendFuelNotifications({ type, previousPrices, chatId, chart }) {
+  const [sent1, sent2] = await Promise.all([
+    sendMessage({
+      price: dataSaved[type].at(-1),
+      previousPrice: previousPrices[0],
+      type: type === 'gasolina' ? 'de la gasolina' : 'del diesel',
+      chatId,
+      stationName: STATION_NAME_1,
+      isIntraDay: Boolean(previous1),
+    }),
+    sendMessage({
+      price: dataSaved2[type].at(-1),
+      previousPrice: previousPrices[1],
+      type: type === 'gasolina' ? 'de la gasolina' : 'del diesel',
+      chatId,
+      stationName: STATION_NAME_2,
+      isIntraDay: Boolean(previous2),
+    }),
+  ])
+
+  if (sent1 || sent2) await bot.sendPhoto(chatId, chart)
 }
 
-const sendDiesel = async () => {
-  const sent1 = await sendMessage({
-    price: dataSaved.diesel.at(-1),
-    priceOld: dieselPrevStation1,
-    type: 'del diesel',
-    chatId: DIESEL_CHAT_ID,
-    stationName: STATION_NAME_1,
-    isIntraDay: !!prev1,
-  })
-  const sent2 = await sendMessage({
-    price: dataSaved2.diesel.at(-1),
-    priceOld: dieselPrevStation2,
-    type: 'del diesel',
-    chatId: DIESEL_CHAT_ID,
-    stationName: STATION_NAME_2,
-    isIntraDay: !!prev2,
-  })
-  if (sent1 || sent2) {
-    await bot.sendPhoto(DIESEL_CHAT_ID, dieselChart)
-  }
+async function main() {
+  await Promise.all([
+    sendFuelNotifications({
+      type: 'gasolina',
+      previousPrices: [previousGasoline1, previousGasoline2],
+      chatId: GASOLINA_CHAT_ID,
+      chart: gasolineChart,
+    }),
+    sendFuelNotifications({
+      type: 'diesel',
+      previousPrices: [previousDiesel1, previousDiesel2],
+      chatId: DIESEL_CHAT_ID,
+      chart: dieselChart,
+    }),
+  ])
 }
 
-sendGasolina().catch(error => console.error('Error al enviar gasolina', error))
-sendDiesel().catch(error => console.error('Error al enviar diesel', error))
+main().catch(error => {
+  console.error('Error sending Telegram notifications:', error)
+  process.exitCode = 1
+})
