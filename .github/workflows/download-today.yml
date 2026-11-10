@@ -98,6 +98,8 @@ jobs:
           DATA_FILE_2: ./data-5143.json
           STATION_NAME_1: Barataria
           STATION_NAME_2: Plaza de Toros
+          NOTIFY_STATION_5205: ${{ steps.barataria.outcome == 'success' }}
+          NOTIFY_STATION_5143: ${{ steps.plaza.outcome == 'success' }}
 
       - name: Report station or deployment failures
         if: always() && (steps.barataria.outcome == 'failure' || steps.plaza.outcome == 'failure' || steps.pages.outcome == 'failure')
