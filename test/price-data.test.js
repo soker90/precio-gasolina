@@ -9,6 +9,12 @@ test('validates all dates and prices used by the dashboard', () => {
   assert.throws(() => validatePriceData({ ...data, dates: ['31/2'] }), /fechas inválidas/)
 })
 
+test('uses Madrid calendar days across timezone boundaries and daylight-saving changes', () => {
+  assert.equal(getDateAge('9/11', new Date('2026-11-09T23:30:00Z')), 0)
+  assert.equal(getDateAge('29/3', new Date('2026-03-30T10:00:00Z')), 1)
+  assert.equal(getDateAge('28/3', new Date('2026-03-30T10:00:00Z')), 2)
+})
+
 test('calculates date age and rejects impossible dates', () => {
   const now = new Date('2026-11-09T12:00:00')
   assert.equal(getDateAge('8/11', now), 1)
