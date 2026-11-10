@@ -15,7 +15,7 @@ export function validatePriceData(data, filename = 'price data') {
     data.dates.length !== data.gasolina.length ||
     data.dates.length !== data.diesel.length
   ) {
-    throw new Error(\`El archivo \${filename} no contiene un histórico válido.\`)
+    throw new Error(`El archivo ${filename} no contiene un histórico válido.`)
   }
 
   const validDate = value => {
@@ -29,16 +29,16 @@ export function validatePriceData(data, filename = 'price data') {
   }
 
   if (data.updatedAt !== undefined && !isValidISODate(data.updatedAt)) {
-    throw new Error(\`El archivo \${filename} contiene una fecha de actualización inválida.\`)
+    throw new Error(`El archivo ${filename} contiene una fecha de actualización inválida.`)
   }
 
   if (!data.dates.every(validDate)) {
-    throw new Error(\`El archivo \${filename} contiene fechas inválidas.\`)
+    throw new Error(`El archivo ${filename} contiene fechas inválidas.`)
   }
 
   for (const price of [...data.gasolina, ...data.diesel]) {
     if (typeof price !== 'number' || !Number.isFinite(price) || price <= 0) {
-      throw new Error(\`El archivo \${filename} contiene precios inválidos.\`)
+      throw new Error(`El archivo ${filename} contiene precios inválidos.`)
     }
   }
 
