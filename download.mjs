@@ -4,6 +4,7 @@ import { getConfig } from './config.js'
 import { fetchStationPrices } from './geoportal.js'
 import { getTodayDate, getTodayISODate, updatePriceHistory, validatePriceHistory } from './price-history.js'
 
+/** Reads a station's saved history and validates its structure before updating it. */
 async function readHistory(file) {
   let content
   try {
@@ -25,6 +26,7 @@ async function readHistory(file) {
   return validatePriceHistory(history, file)
 }
 
+/** Persists JSON through a temporary file so interrupted writes cannot corrupt the history. */
 async function writeJsonAtomically(file, data) {
   const temporaryFile = `${file}.tmp`
   await writeFile(temporaryFile, `${JSON.stringify(data, null, 2)}\n`, 'utf8')
