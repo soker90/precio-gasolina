@@ -90,8 +90,8 @@ Technologies used in the project:
 * GitHub Actions
 * GitHub Pages
 * Chart.js
-* QuickChart
-* node-telegram-bot-api
+* QuickChart v4 (native Node.js fetch)
+* Telegram Bot API (native Node.js fetch)
 
 <h2>🛡️ License:</h2>
 
