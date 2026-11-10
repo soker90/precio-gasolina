@@ -92,3 +92,18 @@ export function getTodayDate(timeZone = 'Europe/Madrid', now = new Date()) {
     timeZone,
   }).format(now)
 }
+
+/**
+ * Returns the current calendar date in the configured timezone as YYYY-MM-DD.
+ */
+export function getTodayISODate(timeZone = 'Europe/Madrid', now = new Date()) {
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat('en', {
+      timeZone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+    }).formatToParts(now).map(part => [part.type, part.value]),
+  )
+  return `${parts.year}-${parts.month}-${parts.day}`
+}
