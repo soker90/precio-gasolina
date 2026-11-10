@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { getTodayDate, updatePriceHistory, validatePriceHistory } from '../price-history.js'
+import { getTodayDate, getTodayISODate, updatePriceHistory, validatePriceHistory } from '../price-history.js'
 
 const history = {
   dates: ['7/11', '8/11'],
