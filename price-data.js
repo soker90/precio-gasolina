@@ -1,5 +1,5 @@
 function isValidISODate(value) {
-  if (typeof value !== 'string' || !/^\\d{4}-\\d{2}-\\d{2}$/.test(value)) return false
+  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
   const [year, month, day] = value.split('-').map(Number)
   const date = new Date(Date.UTC(year, month - 1, day))
   return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day
@@ -15,7 +15,7 @@ export function validatePriceData(data, filename = 'price data') {
     data.dates.length !== data.gasolina.length ||
     data.dates.length !== data.diesel.length
   ) {
-    throw new Error(`El archivo ${filename} no contiene un histórico válido.`)
+    throw new Error(\`El archivo \${filename} no contiene un histórico válido.\`)
   }
 
   const validDate = value => {
@@ -28,20 +28,17 @@ export function validatePriceData(data, filename = 'price data') {
     return date.getUTCDate() === day && date.getUTCMonth() === month - 1
   }
 
-  if (
-    data.updatedAt !== undefined &&
-    (typeof data.updatedAt !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(data.updatedAt))
-  ) {
-    throw new Error(`El archivo ${filename} contiene una fecha de actualización inválida.`)
+  if (data.updatedAt !== undefined && !isValidISODate(data.updatedAt)) {
+    throw new Error(\`El archivo \${filename} contiene una fecha de actualización inválida.\`)
   }
 
   if (!data.dates.every(validDate)) {
-    throw new Error(`El archivo ${filename} contiene fechas inválidas.`)
+    throw new Error(\`El archivo \${filename} contiene fechas inválidas.\`)
   }
 
   for (const price of [...data.gasolina, ...data.diesel]) {
     if (typeof price !== 'number' || !Number.isFinite(price) || price <= 0) {
-      throw new Error(`El archivo ${filename} contiene precios inválidos.`)
+      throw new Error(\`El archivo \${filename} contiene precios inválidos.\`)
     }
   }
 
@@ -53,16 +50,10 @@ export function validatePriceData(data, filename = 'price data') {
  * A date without a year is deliberately treated as unknown rather than guessed.
  */
 export function getDateAge(updatedAt, now = new Date()) {
-  if (typeof updatedAt !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(updatedAt)) return null
+  if (!isValidISODate(updatedAt)) return null
 
   const [year, month, day] = updatedAt.split('-').map(Number)
   const refreshed = new Date(Date.UTC(year, month - 1, day))
-  if (
-    refreshed.getUTCFullYear() !== year ||
-    refreshed.getUTCMonth() !== month - 1 ||
-    refreshed.getUTCDate() !== day
-  ) return null
-
   const madridDate = Object.fromEntries(
     new Intl.DateTimeFormat('en', {
       timeZone: 'Europe/Madrid',
