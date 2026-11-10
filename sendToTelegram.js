@@ -35,7 +35,7 @@ function readPreviousPrices(dataFile) {
   }
 }
 
-async function sendMessage({ price, previousPrice, type, chatId, stationName, isIntraDay = false }) {
+async function sendMessage({ price, previousPrice, type, chatId, stationName, date, year, isIntraDay = false }) {
   if (!Number.isFinite(previousPrice)) {
     console.warn(\`Skipping \${type} notification: no previous price is available\`)
     return false
@@ -47,7 +47,6 @@ async function sendMessage({ price, previousPrice, type, chatId, stationName, is
   const formattedPrice = price.toLocaleString('es-ES', { minimumFractionDigits: 3 })
   const formattedDifference = Math.abs(difference).toLocaleString('es-ES', { minimumFractionDigits: 3 })
   const intraDaySuffix = isIntraDay ? ' _(nuevo precio del día)_' : ''
-  const date = dataSaved.dates.at(-1)
   const station = stationName ? \` (*\${stationName}*)\` : ''
   const direction = difference > 0 ? 'subido' : 'bajado'
   const message = \`*\${date}/\${new Date().getFullYear()}*\${station}: El precio \${type} es \${formattedPrice}€, ha _\${direction}_ *\${formattedDifference}€*\${intraDaySuffix}\`
@@ -82,6 +81,8 @@ async function sendFuelNotifications({ type, chatId }) {
       data: dataSaved,
       previousPrice: type === 'gasolina' ? previousGasoline1 : previousDiesel1,
       name: STATION_NAME_1,
+      date: dataSaved.dates.at(-1),
+      year: dataSaved.updatedAt?.slice(0, 4) ?? new Intl.DateTimeFormat('en', { timeZone: 'Europe/Madrid', year: 'numeric' }).format(new Date()),
       isIntraDay: previous1?.date === dataSaved.dates.at(-1),
     },
     {
@@ -89,6 +90,8 @@ async function sendFuelNotifications({ type, chatId }) {
       data: dataSaved2,
       previousPrice: type === 'gasolina' ? previousGasoline2 : previousDiesel2,
       name: STATION_NAME_2,
+      date: dataSaved2.dates.at(-1),
+      year: dataSaved2.updatedAt?.slice(0, 4) ?? new Intl.DateTimeFormat('en', { timeZone: 'Europe/Madrid', year: 'numeric' }).format(new Date()),
       isIntraDay: previous2?.date === dataSaved2.dates.at(-1),
     },
   ].filter(station => station.enabled)
@@ -99,6 +102,8 @@ async function sendFuelNotifications({ type, chatId }) {
     type: type === 'gasolina' ? 'de la gasolina' : 'del diesel',
     chatId,
     stationName: station.name,
+    date: station.date,
+    year: station.year,
     isIntraDay: station.isIntraDay,
   })))
 
