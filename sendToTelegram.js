@@ -35,45 +35,6 @@ function readPreviousPrices(dataFile) {
   }
 }
 
-async function sendMessage({ price, previousPrice, type, chatId, stationName, date, year, isIntraDay = false }) {
-  if (!Number.isFinite(previousPrice)) {
-    console.warn(`Skipping ${type} notification: no previous price is available`)
-    return false
-  }
-
-  if (price === previousPrice) return false
-
-  const difference = Math.round((price - previousPrice) * 1000) / 1000
-  const formattedPrice = price.toLocaleString('es-ES', { minimumFractionDigits: 3 })
-  const formattedDifference = Math.abs(difference).toLocaleString('es-ES', { minimumFractionDigits: 3 })
-  const intraDaySuffix = isIntraDay ? ' _(nuevo precio del día)_' : ''
-  const station = stationName ? ` (*${stationName}*)` : ''
-  const direction = difference > 0 ? 'subido' : 'bajado'
-  const message = `*${date}/${year}*${station}: El precio ${type} es ${formattedPrice}€, ha _${direction}_ *${formattedDifference}€*${intraDaySuffix}`
-
-  console.log(message)
-  await bot.sendMessage(chatId, message, { parse_mode: 'Markdown' })
-  return true
-}
-
-const dataSaved = validatePriceHistory(readFile(DATA_FILE), DATA_FILE)
-const dataSaved2 = validatePriceHistory(readFile(DATA_FILE_2), DATA_FILE_2)
-const previous1 = readPreviousPrices(DATA_FILE)
-const previous2 = readPreviousPrices(DATA_FILE_2)
-
-const previousGasoline1 = previous1?.date === dataSaved.dates.at(-1)
-  ? previous1.gasolina
-  : dataSaved.gasolina.at(-2)
-const previousDiesel1 = previous1?.date === dataSaved.dates.at(-1)
-  ? previous1.diesel
-  : dataSaved.diesel.at(-2)
-const previousGasoline2 = previous2?.date === dataSaved2.dates.at(-1)
-  ? previous2.gasolina
-  : dataSaved2.gasolina.at(-2)
-const previousDiesel2 = previous2?.date === dataSaved2.dates.at(-1)
-  ? previous2.diesel
-  : dataSaved2.diesel.at(-2)
-
 function getYear(history) {
   return history.updatedAt?.slice(0, 4) ??
     new Intl.DateTimeFormat('en', {
@@ -82,57 +43,103 @@ function getYear(history) {
     }).format(new Date())
 }
 
-async function sendFuelNotifications({ type, chatId }) {
-  const stations = [
-    {
-      enabled: NOTIFY_STATION_5205,
-      data: dataSaved,
-      previousPrice: type === 'gasolina' ? previousGasoline1 : previousDiesel1,
-      name: STATION_NAME_1,
-      date: dataSaved.dates.at(-1),
-      year: getYear(dataSaved),
-      isIntraDay: previous1?.date === dataSaved.dates.at(-1),
-    },
-    {
-      enabled: NOTIFY_STATION_5143,
-      data: dataSaved2,
-      previousPrice: type === 'gasolina' ? previousGasoline2 : previousDiesel2,
-      name: STATION_NAME_2,
-      date: dataSaved2.dates.at(-1),
-      year: getYear(dataSaved2),
-      isIntraDay: previous2?.date === dataSaved2.dates.at(-1),
-    },
-  ].filter(station => station.enabled)
+function loadStation({ enabled, dataFile, name }) {
+  if (!enabled) return null
 
-  const sent = await Promise.all(stations.map(station => sendMessage({
-    price: station.data[type].at(-1),
-    previousPrice: station.previousPrice,
-    type: type === 'gasolina' ? 'de la gasolina' : 'del diesel',
-    chatId,
-    stationName: station.name,
-    date: station.date,
-    year: station.year,
-    isIntraDay: station.isIntraDay,
-  })))
+  try {
+    const data = validatePriceHistory(readFile(dataFile), dataFile)
+    const previous = readPreviousPrices(dataFile)
+    const currentDate = data.dates.at(-1)
+    const intraDay = previous?.date === currentDate
 
-  if (sent.some(Boolean)) {
-    const [first, second] = stations
+    return {
+      data,
+      name,
+      date: currentDate,
+      year: getYear(data),
+      isIntraDay: intraDay,
+      previousPrices: {
+        gasolina: intraDay ? previous.gasolina : data.gasolina.at(-2),
+        diesel: intraDay ? previous.diesel : data.diesel.at(-2),
+      },
+    }
+  } catch (error) {
+    console.error(`Skipping ${name} notifications because its history could not be loaded:`, error)
+    return null
+  }
+}
+
+const stations = [
+  loadStation({ enabled: NOTIFY_STATION_5205, dataFile: DATA_FILE, name: STATION_NAME_1 || 'Barataria' }),
+  loadStation({ enabled: NOTIFY_STATION_5143, dataFile: DATA_FILE_2, name: STATION_NAME_2 || 'Plaza de Toros' }),
+].filter(Boolean)
+
+if (stations.length === 0) {
+  throw new Error('No valid station history is available for Telegram notifications')
+}
+
+async function sendMessage({ station, fuelType, chatId }) {
+  const price = station.data[fuelType].at(-1)
+  const previousPrice = station.previousPrices[fuelType]
+
+  if (!Number.isFinite(previousPrice)) {
+    console.warn(`Skipping ${station.name} ${fuelType} notification: no previous price is available`)
+    return false
+  }
+
+  if (price === previousPrice) return false
+
+  const difference = Math.round((price - previousPrice) * 1000) / 1000
+  const formattedPrice = price.toLocaleString('es-ES', { minimumFractionDigits: 3 })
+  const formattedDifference = Math.abs(difference).toLocaleString('es-ES', { minimumFractionDigits: 3 })
+  const intraDaySuffix = station.isIntraDay ? ' _(nuevo precio del día)_' : ''
+  const direction = difference > 0 ? 'subido' : 'bajado'
+  const message = `*${station.date}/${station.year}* (*${station.name}*): El precio ${fuelType === 'gasolina' ? 'de la gasolina' : 'del diesel'} es ${formattedPrice}€, ha _${direction}_ *${formattedDifference}€*${intraDaySuffix}`
+
+  console.log(message)
+  await bot.sendMessage(chatId, message, { parse_mode: 'Markdown' })
+  return true
+}
+
+async function sendFuelNotifications({ fuelType, chatId }) {
+  const results = await Promise.allSettled(
+    stations.map(station => sendMessage({ station, fuelType, chatId })),
+  )
+  const sent = results.some(result => result.status === 'fulfilled' && result.value)
+
+  if (sent) {
     const chart = generateChart(
-      first.data,
-      type,
-      second?.data ?? null,
-      first.name,
-      second?.name ?? null,
+      stations[0].data,
+      fuelType,
+      stations[1]?.data ?? null,
+      stations[0].name,
+      stations[1]?.name ?? null,
     )
     await bot.sendPhoto(chatId, chart)
+  }
+
+  const failures = results.filter(result => result.status === 'rejected')
+  if (failures.length > 0) {
+    throw new AggregateError(
+      failures.map(result => result.reason),
+      `Some ${fuelType} Telegram notifications failed`,
+    )
   }
 }
 
 async function main() {
-  await Promise.all([
-    sendFuelNotifications({ type: 'gasolina', chatId: GASOLINA_CHAT_ID }),
-    sendFuelNotifications({ type: 'diesel', chatId: DIESEL_CHAT_ID }),
+  const results = await Promise.allSettled([
+    sendFuelNotifications({ fuelType: 'gasolina', chatId: GASOLINA_CHAT_ID }),
+    sendFuelNotifications({ fuelType: 'diesel', chatId: DIESEL_CHAT_ID }),
   ])
+
+  const failures = results.filter(result => result.status === 'rejected')
+  if (failures.length > 0) {
+    throw new AggregateError(
+      failures.map(result => result.reason),
+      'One or more Telegram notification groups failed',
+    )
+  }
 }
 
 main().catch(error => {
