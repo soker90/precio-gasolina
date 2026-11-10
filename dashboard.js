@@ -85,7 +85,7 @@ function renderStation({ id, filename, name }) {
       const canvas = document.getElementById(`chart-${id}`)
       new Chart(canvas, chartOptions(data, data.dates))
 
-      return { name, lastDate, age: getDateAge(lastDate) }
+      return { name, lastDate, age: getDateAge(data.updatedAt) }
     })
 }
 
