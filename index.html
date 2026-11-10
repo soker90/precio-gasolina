@@ -139,6 +139,22 @@
       border-top: 1px solid #e8e8f0;
     }
 
+    .data-status {
+      max-width: 1100px;
+      margin: 20px auto -20px;
+      padding: 0 24px;
+      font-size: 0.85rem;
+      color: #52715a;
+    }
+
+    .data-status.error {
+      color: #b42318;
+    }
+
+    .data-status.warning {
+      color: #946200;
+    }
+
     .telegram-buttons {
       display: flex;
       gap: 12px;
@@ -203,6 +219,8 @@
     <h1>Precio de la Gasolina <span class="subtitle">Alcázar de San Juan</span></h1>
   </header>
 
+  <p class="data-status" id="data-status" role="status" aria-live="polite">Cargando precios…</p>
+
   <main>
     <div class="station" id="station-barataria">
       <div class="station-header">
@@ -266,89 +284,7 @@
     Datos obtenidos de geoportalgasolineras.es
   </footer>
 
-  <script>
-    const GASOLINA_COLOR = { border: 'rgb(231, 76, 60)', bg: 'rgba(231, 76, 60, 0.08)' }
-    const DIESEL_COLOR   = { border: 'rgb(41, 128, 185)', bg: 'rgba(41, 128, 185, 0.08)' }
-
-    const chartDefaults = (data, labels) => ({
-      type: 'line',
-      data: {
-        labels,
-        datasets: [
-          {
-            label: 'Gasolina 95',
-            data: data.gasolina,
-            borderColor: GASOLINA_COLOR.border,
-            backgroundColor: GASOLINA_COLOR.bg,
-            borderWidth: 2,
-            pointRadius: 3,
-            pointHoverRadius: 5,
-            tension: 0.3,
-            fill: true,
-          },
-          {
-            label: 'Diesel A',
-            data: data.diesel,
-            borderColor: DIESEL_COLOR.border,
-            backgroundColor: DIESEL_COLOR.bg,
-            borderWidth: 2,
-            pointRadius: 3,
-            pointHoverRadius: 5,
-            tension: 0.3,
-            fill: true,
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        interaction: { mode: 'index', intersect: false },
-        plugins: {
-          legend: {
-            position: 'top',
-            labels: { font: { family: 'Inter', size: 12 }, boxWidth: 12, padding: 16 }
-          },
-          tooltip: {
-            callbacks: {
-              label: ctx => ` ${ctx.dataset.label}: ${ctx.parsed.y.toLocaleString('es-ES', { minimumFractionDigits: 3 })} €/L`
-            }
-          }
-        },
-        scales: {
-          x: {
-            grid: { color: '#f0f0f0' },
-            ticks: { font: { family: 'Inter', size: 11 }, maxTicksLimit: 10 }
-          },
-          y: {
-            grid: { color: '#f0f0f0' },
-            ticks: {
-              font: { family: 'Inter', size: 11 },
-              callback: val => val.toLocaleString('es-ES', { minimumFractionDigits: 3 }) + ' €'
-            }
-          }
-        }
-      }
-    })
-
-    const setCard = (priceId, dateId, data) => {
-      const lastPrice = data.gasolina.at(-1)
-      const lastDiesel = data.diesel.at(-1)
-      const lastDate = data.dates.at(-1)
-      document.getElementById(priceId + '-gasolina').innerHTML = `${lastPrice.toLocaleString('es-ES', { minimumFractionDigits: 3 })}<span> €/L</span>`
-      document.getElementById(priceId + '-diesel').innerHTML = `${lastDiesel.toLocaleString('es-ES', { minimumFractionDigits: 3 })}<span> €/L</span>`
-      document.getElementById(priceId + '-date').textContent = `Última actualización: ${lastDate}`
-    }
-
-    Promise.all([
-      fetch('./data.json').then(r => r.json()),
-      fetch('./data-5143.json').then(r => r.json())
-    ]).then(([barataria, plazatoros]) => {
-      setCard('barataria', 'barataria-date', barataria)
-      new Chart(document.getElementById('chart-barataria'), chartDefaults(barataria, barataria.dates))
-
-      setCard('plazatoros', 'plazatoros-date', plazatoros)
-      new Chart(document.getElementById('chart-plazatoros'), chartDefaults(plazatoros, plazatoros.dates))
-    })
-  </script>
+  <script type="module" src="./dashboard.js"></script>
 
 </body>
 </html>

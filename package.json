@@ -4,6 +4,9 @@
   "description": "Muestra el precio de la gasolina de una gasolinera definida",
   "type": "module",
   "main": "download.mjs",
+  "engines": {
+    "node": ">=20.10"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/soker90/precio-gasolina.git"
@@ -15,11 +18,12 @@
   },
   "homepage": "https://github.com/soker90/precio-gasolina#readme",
   "dependencies": {
-    "node-telegram-bot-api": "^0.59.0",
-    "quickchart-js": "^3.1.0"
+    "quickchart-js": "^4.0.0"
   },
   "scripts": {
     "download-today": "node download.mjs",
-    "send": "node sendToTelegram.js"
+    "send": "node sendToTelegram.js",
+    "test": "node --test",
+    "check": "node --check telegram.js && node --check config.js && node --check geoportal.js && node --check price-history.js && node --check price-data.js && node --check dashboard.js && node --check download.mjs && node --check sendToTelegram.js && node --check generateChart.js && node --check fileUtils.js"
   }
 }

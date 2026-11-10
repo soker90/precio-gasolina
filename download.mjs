@@ -1,51 +1,65 @@
-import { readFile, writeFile } from './fileUtils.js'
-import fs from 'fs'
-import path from 'path'
+import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises'
+import path from 'node:path'
+import { getConfig } from './config.js'
+import { fetchStationPrices } from './geoportal.js'
+import { getTodayDate, getTodayISODate, updatePriceHistory, validatePriceHistory } from './price-history.js'
 
-const FUEL_STATION_ID = process.env.FUEL_STATION_ID
-const DATA_FILE = process.env.DATA_FILE || './data.json'
-const GEOPORTAL_URL = `https://geoportalgasolineras.es/geoportal/rest/${FUEL_STATION_ID}/busquedaEstacionPrecio`
-
-const date = new Intl.DateTimeFormat('es-ES', { month: 'numeric', day: 'numeric' }).format(Date.now())
-
-// Archivo temporal de precios previos (mismo directorio que DATA_FILE, prefijo "previous-")
-const dataFileDir = path.dirname(DATA_FILE)
-const dataFileBase = path.basename(DATA_FILE)
-const PREV_FILE = path.join(dataFileDir, `previous-${dataFileBase}`)
-
-fetch(GEOPORTAL_URL, { headers: { 'Accept': 'application/json' } })
-.then(res => res.json())
-.then((stationData) => {
-    let dataSaved = readFile(DATA_FILE)
-    
-    if(dataSaved.dates.at(-1) === date){
-      // Mismo día: guardar precios actuales antes de sobreescribir
-      const numElments = dataSaved.dates.length - 1
-      fs.writeFileSync(PREV_FILE, JSON.stringify({
-        date,
-        gasolina: dataSaved.gasolina[numElments],
-        diesel: dataSaved.diesel[numElments],
-      }, null, 2))
-      dataSaved.gasolina[numElments] = stationData.precioGasolina95E5
-      dataSaved.diesel[numElments] = stationData.precioGasoleoA
-    } else {
-      // Día nuevo: eliminar archivo previo si existe (no aplica comparación intra-día)
-      if (fs.existsSync(PREV_FILE)) fs.unlinkSync(PREV_FILE)
-      dataSaved.dates.push(date)
-      dataSaved.gasolina.push(stationData.precioGasolina95E5)
-      dataSaved.diesel.push(stationData.precioGasoleoA)
+/** Reads a station's saved history and validates its structure before updating it. */
+async function readHistory(file) {
+  let content
+  try {
+    content = await readFile(file, 'utf8')
+  } catch (error) {
+    if (error.code === 'ENOENT') {
+      throw new Error(`Historical file not found: ${file}`, { cause: error })
     }
-    
-    // Mantener solo los últimos 45 días
-    dataSaved.dates    = dataSaved.dates.slice(-45)
-    dataSaved.gasolina = dataSaved.gasolina.slice(-45)
-    dataSaved.diesel   = dataSaved.diesel.slice(-45)
+    throw error
+  }
 
-    writeFile(dataSaved, DATA_FILE)
+  let history
+  try {
+    history = JSON.parse(content)
+  } catch (error) {
+    throw new Error(`Historical file contains invalid JSON: ${file}`, { cause: error })
+  }
 
-    console.log(`Guardado con fecha ${date}: gasolina: ${stationData.precioGasolina95E5} y gasoil: ${stationData.precioGasoleoA}`)
-    
+  return validatePriceHistory(history, file)
+}
+
+/** Persists JSON through a temporary file so interrupted writes cannot corrupt the history. */
+async function writeJsonAtomically(file, data) {
+  const temporaryFile = `${file}.tmp`
+  await writeFile(temporaryFile, `${JSON.stringify(data, null, 2)}\n`, 'utf8')
+  await rename(temporaryFile, file)
+}
+
+async function main() {
+  const { stationId, dataFile } = getConfig()
+  const { gasoline, diesel } = await fetchStationPrices({ stationId })
+  const history = await readHistory(dataFile)
+  const { history: updatedHistory, previous } = updatePriceHistory(
+    history,
+    getTodayDate(),
+    { gasoline, diesel },
+  )
+
+  await mkdir(path.dirname(dataFile), { recursive: true })
+
+  const previousFile = path.join(path.dirname(dataFile), `previous-${path.basename(dataFile)}`)
+  if (previous) {
+    await writeJsonAtomically(previousFile, previous)
+  } else {
+    await rm(previousFile, { force: true })
+  }
+
+  updatedHistory.updatedAt = getTodayISODate()
+  await writeJsonAtomically(dataFile, updatedHistory)
+  console.log(
+    `Saved ${getTodayDate()}: gasoline ${gasoline} €/L, diesel ${diesel} €/L (station ${stationId})`,
+  )
+}
+
+main().catch(error => {
+  console.error('Price update failed:', error)
+  process.exitCode = 1
 })
-  .catch(err => {
-    console.error(err)
-  })
