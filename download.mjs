@@ -2,7 +2,7 @@ import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { getConfig } from './config.js'
 import { fetchStationPrices } from './geoportal.js'
-import { getTodayDate, updatePriceHistory, validatePriceHistory } from './price-history.js'
+import { getTodayDate, getTodayISODate, updatePriceHistory, validatePriceHistory } from './price-history.js'
 
 async function readHistory(file) {
   let content
@@ -50,7 +50,7 @@ async function main() {
     await rm(previousFile, { force: true })
   }
 
-  await writeJsonAtomically(dataFile, updatedHistory)
+  updatedHistory.updatedAt = getTodayISODate()\n  await writeJsonAtomically(dataFile, updatedHistory)
   console.log(
     `Saved ${getTodayDate()}: gasoline ${gasoline} €/L, diesel ${diesel} €/L (station ${stationId})`,
   )
