@@ -21,7 +21,14 @@ export function validatePriceData(data, filename = 'price data') {
     return date.getUTCDate() === day && date.getUTCMonth() === month - 1
   }
 
-  if (data.updatedAt !== undefined && (typeof data.updatedAt !== 'string' || !/^\\d{4}-\\d{2}-\\d{2}$/.test(data.updatedAt))) {\n    throw new Error(`El archivo ${filename} contiene una fecha de actualización inválida.`)\n  }\n\n  if (!data.dates.every(validDate)) {
+  if (
+    data.updatedAt !== undefined &&
+    (typeof data.updatedAt !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(data.updatedAt))
+  ) {
+    throw new Error(`El archivo ${filename} contiene una fecha de actualización inválida.`)
+  }
+
+  if (!data.dates.every(validDate)) {
     throw new Error(`El archivo ${filename} contiene fechas inválidas.`)
   }
 
@@ -39,7 +46,7 @@ export function validatePriceData(data, filename = 'price data') {
  * A date without a year is deliberately treated as unknown rather than guessed.
  */
 export function getDateAge(updatedAt, now = new Date()) {
-  if (typeof updatedAt !== 'string' || !/^\\d{4}-\\d{2}-\\d{2}$/.test(updatedAt)) return null
+  if (typeof updatedAt !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(updatedAt)) return null
 
   const [year, month, day] = updatedAt.split('-').map(Number)
   const refreshed = new Date(Date.UTC(year, month - 1, day))
