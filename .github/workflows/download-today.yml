@@ -75,10 +75,7 @@ jobs:
 
             if [ "$attempt" -eq 3 ]; then
               echo "Push failed after $attempt attempts" >&2
-              if [ "${{ steps.pages.outcome }}" = "failure" ]; then
-            echo "::error::GitHub Pages deployment could not be triggered."
-          fi
-          exit 1
+              exit 1
             fi
 
             echo "Push attempt $attempt failed; rebasing on the latest master"
@@ -102,7 +99,7 @@ jobs:
           STATION_NAME_1: Barataria
           STATION_NAME_2: Plaza de Toros
 
-      - name: Report station download failures
+      - name: Report station or deployment failures
         if: always() && (steps.barataria.outcome == 'failure' || steps.plaza.outcome == 'failure' || steps.pages.outcome == 'failure')
         shell: bash
         run: |
@@ -111,5 +108,8 @@ jobs:
           fi
           if [ "${{ steps.plaza.outcome }}" = "failure" ]; then
             echo "::error::Plaza de Toros (5143) download failed."
+          fi
+          if [ "${{ steps.pages.outcome }}" = "failure" ]; then
+            echo "::error::GitHub Pages deployment could not be triggered."
           fi
           exit 1
