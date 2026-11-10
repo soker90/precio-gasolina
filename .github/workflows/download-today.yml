@@ -75,7 +75,10 @@ jobs:
 
             if [ "$attempt" -eq 3 ]; then
               echo "Push failed after $attempt attempts" >&2
-              exit 1
+              if [ "${{ steps.pages.outcome }}" = "failure" ]; then
+            echo "::error::GitHub Pages deployment could not be triggered."
+          fi
+          exit 1
             fi
 
             echo "Push attempt $attempt failed; rebasing on the latest master"
@@ -84,6 +87,8 @@ jobs:
           done
 
       - name: Trigger GitHub Pages deployment
+        id: pages
+        continue-on-error: true
         if: steps.commit.outputs.changes_detected == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
@@ -98,10 +103,9 @@ jobs:
           STATION_NAME_2: Plaza de Toros
 
       - name: Report station download failures
-        if: always() && (steps.barataria.outcome == 'failure' || steps.plaza.outcome == 'failure')
+        if: always() && (steps.barataria.outcome == 'failure' || steps.plaza.outcome == 'failure' || steps.pages.outcome == 'failure')
         shell: bash
         run: |
-          echo "::error::One or more station downloads failed. Successful station data was still committed and notified."
           if [ "${{ steps.barataria.outcome }}" = "failure" ]; then
             echo "::error::Barataria (5205) download failed."
           fi
