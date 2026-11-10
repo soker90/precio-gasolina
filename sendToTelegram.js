@@ -84,7 +84,7 @@ async function sendFuelNotifications({ type, previousPrices, chatId, chart }) {
       type: type === 'gasolina' ? 'de la gasolina' : 'del diesel',
       chatId,
       stationName: STATION_NAME_1,
-      isIntraDay: Boolean(previous1),
+      isIntraDay: previous1?.date === dataSaved.dates.at(-1),
     }),
     sendMessage({
       price: dataSaved2[type].at(-1),
@@ -92,7 +92,7 @@ async function sendFuelNotifications({ type, previousPrices, chatId, chart }) {
       type: type === 'gasolina' ? 'de la gasolina' : 'del diesel',
       chatId,
       stationName: STATION_NAME_2,
-      isIntraDay: Boolean(previous2),
+      isIntraDay: previous2?.date === dataSaved2.dates.at(-1),
     }),
   ])
 
