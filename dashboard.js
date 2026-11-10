@@ -80,7 +80,7 @@ function renderStation({ id, filename, name }) {
         `${gasoline.toLocaleString('es-ES', { minimumFractionDigits: 3 })}<span> €/L</span>`
       document.getElementById(`${id}-diesel`).innerHTML =
         `${diesel.toLocaleString('es-ES', { minimumFractionDigits: 3 })}<span> €/L</span>`
-      document.getElementById(`${id}-date`).textContent = `Última actualización: ${lastDate}`
+      const displayDate = data.updatedAt\n        ? `${Number(data.updatedAt.slice(8, 10))}/${Number(data.updatedAt.slice(5, 7))}/${data.updatedAt.slice(0, 4)}`\n        : lastDate\n      document.getElementById(`${id}-date`).textContent = `Última actualización: ${displayDate}`
 
       const canvas = document.getElementById(`chart-${id}`)
       new Chart(canvas, chartOptions(data, data.dates))
