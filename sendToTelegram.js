@@ -105,23 +105,28 @@ async function sendFuelNotifications({ fuelType, chatId }) {
   const results = await Promise.allSettled(
     stations.map(station => sendMessage({ station, fuelType, chatId })),
   )
+  const failures = results
+    .filter(result => result.status === 'rejected')
+    .map(result => result.reason)
   const sent = results.some(result => result.status === 'fulfilled' && result.value)
 
   if (sent) {
-    const chart = generateChart(
-      stations[0].data,
-      fuelType,
-      stations[1]?.data ?? null,
-      stations[0].name,
-      stations[1]?.name ?? null,
-    )
-    await bot.sendPhoto(chatId, chart)
+    try {
+      const chart = generateChart(
+        stations[0].data,
+        fuelType,
+        stations[1]?.data ?? null,
+        stations[0].name,
+        stations[1]?.name ?? null,
+      )
+      await bot.sendPhoto(chatId, chart)
+    } catch (error) {
+      failures.push(error)
+    }
   }
-
-  const failures = results.filter(result => result.status === 'rejected')
   if (failures.length > 0) {
     throw new AggregateError(
-      failures.map(result => result.reason),
+      failures,
       `Some ${fuelType} Telegram notifications failed`,
     )
   }
