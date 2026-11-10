@@ -40,6 +40,6 @@ test('appends a new day and trims all arrays consistently', () => {
   assert.equal(result.previous, null)
 })
 
-test('formats the date in the configured timezone', () => {
-  assert.equal(getTodayDate('Europe/Madrid', new Date('2026-11-08T23:30:00Z')), '9/11')
+test('formats both display and machine dates in the configured timezone', () => {
+  const instant = new Date('2026-11-08T23:30:00Z')\n  assert.equal(getTodayDate('Europe/Madrid', instant), '9/11')\n  assert.equal(getTodayISODate('Europe/Madrid', instant), '2026-11-09')
 })
