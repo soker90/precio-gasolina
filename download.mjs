@@ -50,7 +50,8 @@ async function main() {
     await rm(previousFile, { force: true })
   }
 
-  updatedHistory.updatedAt = getTodayISODate()\n  await writeJsonAtomically(dataFile, updatedHistory)
+  updatedHistory.updatedAt = getTodayISODate()
+  await writeJsonAtomically(dataFile, updatedHistory)
   console.log(
     `Saved ${getTodayDate()}: gasoline ${gasoline} €/L, diesel ${diesel} €/L (station ${stationId})`,
   )
