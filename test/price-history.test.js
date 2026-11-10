@@ -1,6 +1,11 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { getTodayDate, getTodayISODate, updatePriceHistory, validatePriceHistory } from '../price-history.js'
+import {
+  getTodayDate,
+  getTodayISODate,
+  updatePriceHistory,
+  validatePriceHistory,
+} from '../price-history.js'
 
 const history = {
   dates: ['7/11', '8/11'],
@@ -40,6 +45,8 @@ test('appends a new day and trims all arrays consistently', () => {
   assert.equal(result.previous, null)
 })
 
-test('formats both display and machine dates in the configured timezone', () => {
-  const instant = new Date('2026-11-08T23:30:00Z')\n  assert.equal(getTodayDate('Europe/Madrid', instant), '9/11')\n  assert.equal(getTodayISODate('Europe/Madrid', instant), '2026-11-09')
+test('formats display and machine dates in the configured timezone', () => {
+  const instant = new Date('2026-11-08T23:30:00Z')
+  assert.equal(getTodayDate('Europe/Madrid', instant), '9/11')
+  assert.equal(getTodayISODate('Europe/Madrid', instant), '2026-11-09')
 })
