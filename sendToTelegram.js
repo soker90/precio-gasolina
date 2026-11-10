@@ -24,20 +24,20 @@ const bot = createTelegramClient({ token: TOKEN_TELEGRAM })
 function readPreviousPrices(dataFile) {
   const directory = path.dirname(dataFile)
   const basename = path.basename(dataFile)
-  const previousFile = path.join(directory, \`previous-\${basename}\`)
+  const previousFile = path.join(directory, `previous-${basename}`)
 
   if (!fs.existsSync(previousFile)) return null
 
   try {
     return JSON.parse(fs.readFileSync(previousFile, 'utf8'))
   } catch (error) {
-    throw new Error(\`Could not read previous prices from \${previousFile}\`, { cause: error })
+    throw new Error(`Could not read previous prices from ${previousFile}`, { cause: error })
   }
 }
 
 async function sendMessage({ price, previousPrice, type, chatId, stationName, date, year, isIntraDay = false }) {
   if (!Number.isFinite(previousPrice)) {
-    console.warn(\`Skipping \${type} notification: no previous price is available\`)
+    console.warn(`Skipping ${type} notification: no previous price is available`)
     return false
   }
 
@@ -47,9 +47,9 @@ async function sendMessage({ price, previousPrice, type, chatId, stationName, da
   const formattedPrice = price.toLocaleString('es-ES', { minimumFractionDigits: 3 })
   const formattedDifference = Math.abs(difference).toLocaleString('es-ES', { minimumFractionDigits: 3 })
   const intraDaySuffix = isIntraDay ? ' _(nuevo precio del día)_' : ''
-  const station = stationName ? \` (*\${stationName}*)\` : ''
+  const station = stationName ? ` (*${stationName}*)` : ''
   const direction = difference > 0 ? 'subido' : 'bajado'
-  const message = \`*\${date}/\${new Date().getFullYear()}*\${station}: El precio \${type} es \${formattedPrice}€, ha _\${direction}_ *\${formattedDifference}€*\${intraDaySuffix}\`
+  const message = `*${date}/${year}*${station}: El precio ${type} es ${formattedPrice}€, ha _${direction}_ *${formattedDifference}€*${intraDaySuffix}`
 
   console.log(message)
   await bot.sendMessage(chatId, message, { parse_mode: 'Markdown' })
@@ -74,6 +74,14 @@ const previousDiesel2 = previous2?.date === dataSaved2.dates.at(-1)
   ? previous2.diesel
   : dataSaved2.diesel.at(-2)
 
+function getYear(history) {
+  return history.updatedAt?.slice(0, 4) ??
+    new Intl.DateTimeFormat('en', {
+      timeZone: 'Europe/Madrid',
+      year: 'numeric',
+    }).format(new Date())
+}
+
 async function sendFuelNotifications({ type, chatId }) {
   const stations = [
     {
@@ -82,7 +90,7 @@ async function sendFuelNotifications({ type, chatId }) {
       previousPrice: type === 'gasolina' ? previousGasoline1 : previousDiesel1,
       name: STATION_NAME_1,
       date: dataSaved.dates.at(-1),
-      year: dataSaved.updatedAt?.slice(0, 4) ?? new Intl.DateTimeFormat('en', { timeZone: 'Europe/Madrid', year: 'numeric' }).format(new Date()),
+      year: getYear(dataSaved),
       isIntraDay: previous1?.date === dataSaved.dates.at(-1),
     },
     {
@@ -91,7 +99,7 @@ async function sendFuelNotifications({ type, chatId }) {
       previousPrice: type === 'gasolina' ? previousGasoline2 : previousDiesel2,
       name: STATION_NAME_2,
       date: dataSaved2.dates.at(-1),
-      year: dataSaved2.updatedAt?.slice(0, 4) ?? new Intl.DateTimeFormat('en', { timeZone: 'Europe/Madrid', year: 'numeric' }).format(new Date()),
+      year: getYear(dataSaved2),
       isIntraDay: previous2?.date === dataSaved2.dates.at(-1),
     },
   ].filter(station => station.enabled)
