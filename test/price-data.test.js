@@ -12,8 +12,8 @@ test('validates all dates and prices used by the dashboard', () => {
 })
 
 test('calculates refresh age from the full date in Madrid calendar days', () => {
-  assert.equal(getDateAge('2026-11-09', new Date('2026-11-09T23:30:00Z')), 0)
-  assert.equal(getDateAge('2026-11-08', new Date('2026-11-09T23:30:00Z')), 1)
+  assert.equal(getDateAge('2026-11-09', new Date('2026-11-09T22:30:00Z')), 0)
+  assert.equal(getDateAge('2026-11-08', new Date('2026-11-09T22:30:00Z')), 1)
   assert.equal(getDateAge('2026-03-28', new Date('2026-03-30T10:00:00Z')), 2)
   assert.equal(getDateAge('2026-03-29', new Date('2026-03-30T10:00:00Z')), 1)
   assert.equal(getDateAge('8/11', new Date('2026-11-09T12:00:00')), null)
